@@ -220,7 +220,7 @@ function card(p) {
     : placeholder();
   const out = p.stock <= 0;
   return `
-  <article class="card" data-id="${p.id}">
+  <article class="card reveal" data-id="${p.id}">
     <a class="card__media" href="product.html?id=${p.id}" aria-label="${esc(p.name)}">
       ${img}
       ${stockBadge(p) ? `<span style="position:absolute;top:12px;left:12px">${stockBadge(p)}</span>` : ""}

@@ -778,3 +778,38 @@ body.home:not(.scrolled) .site-header .icon-btn:hover { background: rgba(255,255
 }
 .page-hero__title { color: #fff; font-size: clamp(44px, 8vw, 108px); line-height: .92; letter-spacing: -.01em; }
 .page-hero__sub { color: rgba(255,255,255,.9); font-size: 1.05rem; max-width: 54ch; margin-top: 16px; }
+
+/* ================= Extra motion ================= */
+@keyframes heroRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+.page-hero__eyebrow { animation: heroRise .55s var(--ease-out) both; }
+.page-hero__title   { animation: heroRise .7s  var(--ease-out) both; animation-delay: .07s; }
+.page-hero__sub     { animation: heroRise .7s  var(--ease-out) both; animation-delay: .15s; }
+.pdp-hero .card__cat { animation: heroRise .55s var(--ease-out) both; }
+.pdp-hero .pdp__title { animation: heroRise .7s var(--ease-out) both; animation-delay: .06s; }
+
+/* rating bars grow on load */
+@keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.rbar .fill { transform-origin: left; animation: barGrow 1s var(--ease-out) both; }
+.rbar:nth-child(1) .fill { animation-delay: .10s; }
+.rbar:nth-child(2) .fill { animation-delay: .18s; }
+.rbar:nth-child(3) .fill { animation-delay: .26s; }
+.rbar:nth-child(4) .fill { animation-delay: .34s; }
+.rbar:nth-child(5) .fill { animation-delay: .42s; }
+
+/* the big rating number pops in */
+@keyframes popIn { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
+.rating-big { animation: popIn .6s var(--ease-spring) both; }
+
+/* subtle lift on review & certificate cards */
+.review, .cert { transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out), border-color .25s var(--ease-out); }
+.review:hover, .cert:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.cert__img img { transition: transform .5s var(--ease-out); }
+.cert:hover .cert__img img { transform: scale(1.05); }
+
+/* summary / panel cards ease in */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.summary, .panel, .rating-card, .confirm-hero { animation: fadeUp .6s var(--ease-out) both; }
+
+/* nav links + footer socials micro-motion */
+.social { transition: transform .2s var(--ease-spring), background .2s var(--ease), color .2s var(--ease); }
+.social:hover { transform: translateY(-3px) scale(1.06); }
