@@ -252,6 +252,22 @@ export function revealOnScroll() {
   els.forEach((e) => io.observe(e));
 }
 
+// ---- number count-up (smooth) ----------------------------------------------
+export function countUp(el, to, { dur = 1100, decimals = 0, suffix = "" } = {}) {
+  if (!el) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    el.textContent = to.toFixed(decimals) + suffix; return;
+  }
+  const start = performance.now();
+  const tick = (now) => {
+    const p = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+    el.textContent = (to * eased).toFixed(decimals) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 // ---- skeleton loading placeholders (presentation only) ---------------------
 export function skeletonCards(n = 8) {
   return Array.from({ length: n }).map(() => `

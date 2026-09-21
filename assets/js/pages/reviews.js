@@ -1,5 +1,5 @@
 import { SITE } from "../config.js?v=2";
-import { icon, esc, initTheme, mountChrome, revealOnScroll, pageHero } from "../ui.js";
+import { icon, esc, initTheme, mountChrome, revealOnScroll, pageHero, countUp } from "../ui.js";
 import { getLang } from "../i18n.js";
 
 initTheme();
@@ -49,7 +49,7 @@ function reviewCard(r, i) {
   const [name, tag, rating, text] = r;
   const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
   return `
-    <div class="review">
+    <div class="review reveal">
       <div class="review__head">
         <span class="review__av" style="background:${AV[i % AV.length]}">${esc(initials(name))}</span>
         <span class="review__who"><b>${esc(name)}</b><span class="review__name" style="margin:0">${esc(tag)}</span></span>
@@ -69,7 +69,7 @@ function init() {
     <section class="section" style="padding-top:0">
       <div class="rating-card" style="max-width:560px">
         <div class="rating-top">
-          <div class="rating-big">4.9</div>
+          <div class="rating-big" id="ratingBig">4.9</div>
           <div><div class="rating-stars">★★★★★</div><div class="rating-count">${esc(x.basedOn)}</div></div>
         </div>
         <div class="rbars">
@@ -92,6 +92,7 @@ function init() {
         </div>
       </div>
     </section>`;
+  countUp(document.getElementById("ratingBig"), 4.9, { decimals: 1, dur: 1100 });
   revealOnScroll();
 }
 
