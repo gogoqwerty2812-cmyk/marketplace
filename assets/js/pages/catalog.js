@@ -191,6 +191,18 @@ function initToon() {
     if (m !== isMobile) { isMobile = m; render(); }
   });
 
+  // pointer parallax — the jars drift gently toward the cursor for depth
+  if (!reduce) {
+    car.style.transition = "transform .45s var(--ease-out)";
+    stage.addEventListener("pointermove", (e) => {
+      const r = stage.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5;
+      const ny = (e.clientY - r.top) / r.height - 0.5;
+      car.style.transform = `translate(${nx * 16}px, ${ny * 11}px)`;
+    });
+    stage.addEventListener("pointerleave", () => { car.style.transform = "translate(0,0)"; });
+  }
+
   // autoplay — advances on its own, pauses on hover / touch / hidden tab
   const DELAY = 5000;
   let timer = null;

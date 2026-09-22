@@ -204,6 +204,26 @@ export function mountChrome(activePage = "index.html") {
     navToggle.setAttribute("aria-expanded", String(open));
   });
 
+  // header elevation on scroll + gentle parallax on colour-block page headers
+  const reduceMo = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let phInner = null, phGrain = null, ticking = false;
+  const onScrollUI = () => {
+    if (!reduceMo) {
+      if (!phInner) phInner = document.querySelector(".page-hero__inner");
+      if (!phGrain) phGrain = document.querySelector(".page-hero__grain");
+      const y = window.scrollY;
+      if (phInner) { phInner.style.transform = `translateY(${Math.min(y * 0.16, 70)}px)`; phInner.style.opacity = String(Math.max(0, 1 - y / 560)); }
+      if (phGrain) phGrain.style.transform = `translateY(${Math.min(y * 0.26, 110)}px)`;
+    }
+    ticking = false;
+  };
+  const onScroll = () => {
+    document.body.classList.toggle("hdr-shrink", window.scrollY > 8);
+    if (!ticking) { ticking = true; requestAnimationFrame(onScrollUI); }
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
   // sliding nav active indicator — one physical object that moves & springs
   const underline = document.getElementById("navUnderline");
   const activeLink = nav.querySelector(".navlink.is-active");

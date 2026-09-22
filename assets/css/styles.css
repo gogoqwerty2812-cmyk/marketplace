@@ -846,3 +846,16 @@ body.home:not(.scrolled) .site-header .icon-btn:hover { background: rgba(255,255
 @media (prefers-reduced-motion: reduce) {
   #app, .toon__ghost { animation: none !important; }
 }
+
+/* ================= Smoother motion, round 3 ================= */
+/* header settles on scroll: subtle shrink + elevation */
+.site-header__inner { transition: height .3s var(--ease-out); }
+.hdr-shrink .site-header__inner { height: 56px; }
+.hdr-shrink .site-header { box-shadow: 0 8px 22px -14px rgba(60,45,35,.45); }
+body.home:not(.scrolled) .site-header { box-shadow: none; }
+.page-hero__inner, .page-hero__grain { will-change: transform; }
+.toon__carousel { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header__inner { transition: none; }
+  .hdr-shrink .site-header__inner { height: 66px; }
+}
