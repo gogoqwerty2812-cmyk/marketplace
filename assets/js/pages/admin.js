@@ -1,5 +1,5 @@
 import { SITE, ORDER_STATUSES } from "../config.js?v=2";
-import { getProducts, saveProduct, deleteProduct, getOrders, updateOrderStatus, deleteOrder, getTickets, deleteTicket, ensureAdminSeed, exportProductsJSON, importProductsFromJSON, getCerts, saveCert, deleteCert, ensureCertAdminSeed, exportCertsJSON, importCertsFromJSON, getReviews, saveReview, deleteReview, ensureReviewAdminSeed, exportReviewsJSON, importReviewsFromJSON, getSettings, saveSettings, ensureSettingsAdminSeed, exportSettingsJSON } from "../db.js?v=2";
+import { getProducts, saveProduct, deleteProduct, getOrders, updateOrderStatus, deleteOrder, getTickets, deleteTicket, ensureAdminSeed, exportProductsJSON, importProductsFromJSON, getCerts, saveCert, deleteCert, ensureCertAdminSeed, exportCertsJSON, importCertsFromJSON, getReviews, saveReview, deleteReview, ensureReviewAdminSeed, exportReviewsJSON, importReviewsFromJSON, getSettings, saveSettings, ensureSettingsAdminSeed, exportSettingsJSON, exportAllJSON, importAllFromJSON } from "../db.js?v=2";
 import { icon, money, esc, placeholder, initTheme, mountChrome, toast } from "../ui.js";
 
 initTheme();
@@ -92,9 +92,13 @@ function renderDashboard() {
           <button class="tab" data-tab="support">Support</button>
           <button class="tab" data-tab="settings">Settings</button>
         </div>
+        <button class="btn btn--primary btn--sm" id="exportAll">${icon("box", 15)} Export all</button>
+        <button class="btn btn--ghost btn--sm" id="importAll">${icon("upload", 15)} Import all</button>
+        <input type="file" id="importAllFile" accept="application/json,.json" hidden>
         <button class="btn btn--ghost btn--sm" id="logout">Log out</button>
       </div>
     </div>
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span><b>One file for everything:</b> edit anything, then click <b>Export all</b> → replace <code>data/content.json</code> in your repo → commit &amp; push. (Per-tab exports below still work if you prefer separate files.)</span></div>
     <div id="panel"></div>`;
 
   document.getElementById("tabs").addEventListener("click", (e) => {
@@ -112,6 +116,32 @@ function renderDashboard() {
   document.getElementById("logout").addEventListener("click", () => {
     sessionStorage.removeItem(SESSION_KEY);
     renderLogin();
+  });
+
+  document.getElementById("exportAll").addEventListener("click", async () => {
+    try {
+      // make sure every store is seeded so nothing exports empty
+      await ensureAdminSeed(); await ensureCertAdminSeed(); await ensureReviewAdminSeed(); await ensureSettingsAdminSeed();
+      const blob = new Blob([await exportAllJSON()], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = "content.json"; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast("content.json downloaded — replace data/content.json to publish everything");
+    } catch (err) { toast("Export failed: " + err.message, "err"); }
+  });
+  document.getElementById("importAll").addEventListener("click", () => document.getElementById("importAllFile").click());
+  document.getElementById("importAllFile").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      await importAllFromJSON(await file.text());
+      toast("Everything imported");
+      if (tab === "products") renderProducts();
+      else if (tab === "orders") renderOrders();
+      else if (tab === "reviews") renderReviews();
+      else if (tab === "certs") renderCerts();
+      else if (tab === "settings") renderSettings();
+      else renderTickets();
+    } catch (err) { toast("Import failed: " + err.message, "err"); }
   });
 
   renderProducts();
@@ -144,7 +174,7 @@ async function renderProducts() {
         <input type="file" id="importFile" accept="application/json,.json" hidden>
       </div>
     </div>
-    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>To publish to the live site: <b>Export products.json</b> → replace <code>data/products.json</code> in your repo → commit &amp; push.</span></div>
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>Recommended: use <b>Export all</b> (top) → <code>data/content.json</code> — one file for the whole site. The button below exports only products.</span></div>
     ${products.length ? `
     <div class="table-wrap">
       <table class="data">
@@ -456,7 +486,7 @@ async function renderCerts() {
         <input type="file" id="certImportFile" accept="application/json,.json" hidden>
       </div>
     </div>
-    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>To publish to the live site: <b>Export certificates.json</b> → replace <code>data/certificates.json</code> in your repo → commit &amp; push.</span></div>
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>Recommended: use <b>Export all</b> (top) → <code>data/content.json</code> — one file for the whole site. The button below exports only certificates.</span></div>
     ${certs.length ? `
     <div class="table-wrap"><table class="data">
       <thead><tr><th></th><th>Title</th><th>Issuer / lab</th><th>Date</th><th>Category</th><th></th></tr></thead>
@@ -587,7 +617,7 @@ async function renderReviews() {
         <input type="file" id="revImportFile" accept="application/json,.json" hidden>
       </div>
     </div>
-    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>To publish to the live site: <b>Export reviews.json</b> → replace <code>data/reviews.json</code> in your repo → commit &amp; push.</span></div>
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>Recommended: use <b>Export all</b> (top) → <code>data/content.json</code> — one file for the whole site. The button below exports only reviews.</span></div>
     ${reviews.length ? `
     <div class="table-wrap"><table class="data">
       <thead><tr><th>Name</th><th>Role</th><th>Rating</th><th>Review</th><th></th></tr></thead>
@@ -719,7 +749,7 @@ async function renderSettings() {
   try { s = await ensureSettingsAdminSeed(); }
   catch (err) { panel.innerHTML = dbErrorHTML(err); return; }
   panel.innerHTML = `
-    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>To publish to the live site: <b>Export site.json</b> → replace <code>data/site.json</code> in your repo → commit &amp; push.</span></div>
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>Recommended: use <b>Export all</b> (top) → <code>data/content.json</code> — one file for the whole site. The button below exports only these settings.</span></div>
     <div class="panel" style="max-width:720px">
       <div class="panel__title">${icon("chat", 18)} Reviews channel</div>
       <div class="field" style="margin-top:12px">

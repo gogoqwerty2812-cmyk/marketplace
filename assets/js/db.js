@@ -128,13 +128,37 @@ export async function deleteProduct(id) {
 // IndexedDB workspace and exports an updated products.json to publish.
 const PUBLISHED_URL = "data/products.json";
 
+// One-file publishing: everything (products, certificates, reviews, settings)
+// can live in a single data/content.json. If present it wins; otherwise we fall
+// back to the individual data/*.json files. Fetched once per page load.
+const PUBLISHED_BUNDLE_URL = "data/content.json";
+let _bundlePromise;
+function getBundle() {
+  if (_bundlePromise !== undefined) return _bundlePromise;
+  _bundlePromise = (async () => {
+    try {
+      const res = await fetch(PUBLISHED_BUNDLE_URL + "?t=" + Date.now(), { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data === "object" && !Array.isArray(data)) return data;
+      }
+    } catch {}
+    return null;
+  })();
+  return _bundlePromise;
+}
+
 export async function getPublishedProducts() {
+  const b = await getBundle();
+  if (b && Array.isArray(b.products) && b.products.length) {
+    return b.products.slice().sort((a, b2) => (b2.createdAt || 0) - (a.createdAt || 0));
+  }
   try {
     const res = await fetch(PUBLISHED_URL + "?t=" + Date.now(), { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length) {
-        return data.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        return data.slice().sort((a, b3) => (b3.createdAt || 0) - (a.createdAt || 0));
       }
     }
   } catch {}
@@ -251,6 +275,8 @@ export async function deleteCert(id) {
   return tx(STORE_CERTS, "readwrite", (os) => os.delete(id));
 }
 export async function getPublishedCerts() {
+  const b = await getBundle();
+  if (b && Array.isArray(b.certificates)) return b.certificates.slice().sort((a, c) => (c.createdAt || 0) - (a.createdAt || 0));
   try {
     const res = await fetch(PUBLISHED_CERTS_URL + "?t=" + Date.now(), { cache: "no-store" });
     if (res.ok) {
@@ -313,6 +339,8 @@ export async function deleteReview(id) {
   return tx(STORE_REVIEWS, "readwrite", (os) => os.delete(id));
 }
 export async function getPublishedReviews() {
+  const b = await getBundle();
+  if (b && Array.isArray(b.reviews)) return b.reviews.slice().sort((a, c) => (c.createdAt || 0) - (a.createdAt || 0));
   try {
     const res = await fetch(PUBLISHED_REVIEWS_URL + "?t=" + Date.now(), { cache: "no-store" });
     if (res.ok) {
@@ -367,6 +395,8 @@ export async function saveSettings(obj) {
   return value;
 }
 export async function getPublishedSettings() {
+  const b = await getBundle();
+  if (b && b.settings && typeof b.settings === "object" && !Array.isArray(b.settings)) return { ...DEFAULT_SETTINGS, ...b.settings };
   try {
     const res = await fetch(PUBLISHED_SETTINGS_URL + "?t=" + Date.now(), { cache: "no-store" });
     if (res.ok) {
@@ -397,6 +427,35 @@ export async function importSettingsFromJSON(text) {
   const data = JSON.parse(text);
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("JSON must be a settings object");
   return saveSettings(data);
+}
+
+// ---- One-file publishing: everything in a single content.json ---------------
+export async function exportAllJSON() {
+  const [products, certificates, reviews, settings] = await Promise.all([
+    getProducts(), getCerts(), getReviews(), getSettings(),
+  ]);
+  return JSON.stringify({ products, certificates, reviews, settings: settings || DEFAULT_SETTINGS }, null, 2);
+}
+export async function importAllFromJSON(text) {
+  const data = JSON.parse(text);
+  if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("JSON must be a content object with products / certificates / reviews / settings");
+  const now = Date.now();
+  if (Array.isArray(data.products)) {
+    await tx(STORE_PRODUCTS, "readwrite", (os) => os.clear());
+    await tx(STORE_PRODUCTS, "readwrite", (os) => data.products.forEach((p, i) => os.put({ ...p, id: p.id || uid(), createdAt: p.createdAt || now - i, updatedAt: now })));
+    localStorage.setItem("mkt_admin_seeded", "1");
+  }
+  if (Array.isArray(data.certificates)) {
+    await tx(STORE_CERTS, "readwrite", (os) => os.clear());
+    await tx(STORE_CERTS, "readwrite", (os) => data.certificates.forEach((c, i) => os.put({ ...c, id: c.id || uid(), createdAt: c.createdAt || now - i, updatedAt: now })));
+    localStorage.setItem("mkt_certs_seeded", "1");
+  }
+  if (Array.isArray(data.reviews)) {
+    await tx(STORE_REVIEWS, "readwrite", (os) => os.clear());
+    await tx(STORE_REVIEWS, "readwrite", (os) => data.reviews.forEach((r, i) => os.put({ ...r, id: r.id || uid(), createdAt: r.createdAt || now - i, updatedAt: now })));
+    localStorage.setItem("mkt_reviews_seeded", "1");
+  }
+  if (data.settings && typeof data.settings === "object" && !Array.isArray(data.settings)) await saveSettings(data.settings);
 }
 
 // =============================================================================
