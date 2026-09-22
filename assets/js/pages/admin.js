@@ -1,5 +1,5 @@
 import { SITE, ORDER_STATUSES } from "../config.js?v=2";
-import { getProducts, saveProduct, deleteProduct, getOrders, updateOrderStatus, deleteOrder, getTickets, deleteTicket, ensureAdminSeed, exportProductsJSON, importProductsFromJSON, getCerts, saveCert, deleteCert, ensureCertAdminSeed, exportCertsJSON, importCertsFromJSON } from "../db.js?v=2";
+import { getProducts, saveProduct, deleteProduct, getOrders, updateOrderStatus, deleteOrder, getTickets, deleteTicket, ensureAdminSeed, exportProductsJSON, importProductsFromJSON, getCerts, saveCert, deleteCert, ensureCertAdminSeed, exportCertsJSON, importCertsFromJSON, getReviews, saveReview, deleteReview, ensureReviewAdminSeed, exportReviewsJSON, importReviewsFromJSON, getSettings, saveSettings, ensureSettingsAdminSeed, exportSettingsJSON } from "../db.js?v=2";
 import { icon, money, esc, placeholder, initTheme, mountChrome, toast } from "../ui.js";
 
 initTheme();
@@ -87,8 +87,10 @@ function renderDashboard() {
         <div class="tabs" id="tabs">
           <button class="tab is-active" data-tab="products">Products</button>
           <button class="tab" data-tab="orders">Orders</button>
+          <button class="tab" data-tab="reviews">Reviews</button>
           <button class="tab" data-tab="certs">Certificates</button>
           <button class="tab" data-tab="support">Support</button>
+          <button class="tab" data-tab="settings">Settings</button>
         </div>
         <button class="btn btn--ghost btn--sm" id="logout">Log out</button>
       </div>
@@ -102,7 +104,9 @@ function renderDashboard() {
     document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("is-active", t === b));
     if (tab === "products") renderProducts();
     else if (tab === "orders") renderOrders();
+    else if (tab === "reviews") renderReviews();
     else if (tab === "certs") renderCerts();
+    else if (tab === "settings") renderSettings();
     else renderTickets();
   });
   document.getElementById("logout").addEventListener("click", () => {
@@ -560,6 +564,211 @@ function openCertModal(cert) {
     toast(isEdit ? "Certificate updated" : "Certificate created");
     close();
     renderCerts();
+  });
+}
+
+// ---------------------------------------------------------------------------
+//  REVIEWS TAB
+// ---------------------------------------------------------------------------
+const stars = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+
+async function renderReviews() {
+  const panel = document.getElementById("panel");
+  let reviews;
+  try { await ensureReviewAdminSeed(); reviews = await getReviews(); }
+  catch (err) { panel.innerHTML = dbErrorHTML(err); return; }
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:var(--space-3)">
+      <p class="muted">${reviews.length} review${reviews.length === 1 ? "" : "s"}</p>
+      <div class="row-actions" style="flex-wrap:wrap">
+        <button class="btn btn--ghost btn--sm" id="revImportBtn">${icon("upload", 15)} Import</button>
+        <button class="btn btn--ghost btn--sm" id="revExportBtn">${icon("box", 15)} Export reviews.json</button>
+        <button class="btn btn--primary btn--sm" id="revNewBtn">${icon("plus", 16)} Add review</button>
+        <input type="file" id="revImportFile" accept="application/json,.json" hidden>
+      </div>
+    </div>
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>To publish to the live site: <b>Export reviews.json</b> → replace <code>data/reviews.json</code> in your repo → commit &amp; push.</span></div>
+    ${reviews.length ? `
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Name</th><th>Role</th><th>Rating</th><th>Review</th><th></th></tr></thead>
+      <tbody>
+        ${reviews.map((r) => `<tr>
+          <td style="font-weight:600;white-space:nowrap">${esc(r.name)}${r.verified ? ` <span class="badge badge--stock" style="font-size:.62rem">✓</span>` : ""}</td>
+          <td>${esc(r.role || "—")}</td>
+          <td style="color:var(--accent-ink);white-space:nowrap">${stars(r.rating)}</td>
+          <td style="max-width:360px">${esc(r.text)}</td>
+          <td><div class="row-actions">
+            <button class="icon-btn rev-edit" data-id="${r.id}" style="width:34px;height:34px" aria-label="Edit">${icon("edit", 15)}</button>
+            <button class="icon-btn rev-del" data-id="${r.id}" style="width:34px;height:34px" aria-label="Delete">${icon("trash", 15)}</button>
+          </div></td>
+        </tr>`).join("")}
+      </tbody></table></div>`
+    : `<div class="empty">${icon("chat", 44)}<h3>No reviews yet</h3><p>Add customer reviews shown on the Reviews page.</p></div>`}`;
+
+  document.getElementById("revNewBtn").addEventListener("click", () => openReviewModal(null));
+  document.getElementById("revExportBtn").addEventListener("click", async () => {
+    const list = await getReviews();
+    const blob = new Blob([exportReviewsJSON(list)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "reviews.json"; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("reviews.json downloaded — commit it to publish");
+  });
+  document.getElementById("revImportBtn").addEventListener("click", () => document.getElementById("revImportFile").click());
+  document.getElementById("revImportFile").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try { await importReviewsFromJSON(await file.text()); toast("Reviews imported"); renderReviews(); }
+    catch (err) { toast("Import failed: " + err.message, "err"); }
+  });
+  panel.querySelectorAll(".rev-edit").forEach((b) => b.addEventListener("click", () => openReviewModal(reviews.find((r) => r.id === b.dataset.id))));
+  panel.querySelectorAll(".rev-del").forEach((b) => b.addEventListener("click", async () => {
+    if (confirm("Delete this review?")) { await deleteReview(b.dataset.id); toast("Review deleted"); renderReviews(); }
+  }));
+}
+
+function openReviewModal(review) {
+  const isEdit = !!review;
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal__head">
+        <h2 style="font-family:var(--font-body);font-size:1.2rem;font-weight:600">${isEdit ? "Edit review" : "Add review"}</h2>
+        <button class="icon-btn" id="rvClose" aria-label="Close">${icon("close", 18)}</button>
+      </div>
+      <div class="modal__body">
+        <form id="revForm" class="form-grid">
+          <div class="form-row">
+            <div class="field" data-field="rname">
+              <label class="label">Name <span class="req">*</span></label>
+              <input class="input" name="name" value="${esc(review?.name || "")}" placeholder="e.g. Max K.">
+              <div class="error-text"></div>
+            </div>
+            <div class="field"><label class="label">Role / sport</label><input class="input" name="role" value="${esc(review?.role || "")}" placeholder="e.g. Powerlifter"></div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label class="label">Rating</label>
+              <select class="select" name="rating">${[5, 4, 3, 2, 1].map((n) => `<option value="${n}" ${(review?.rating || 5) === n ? "selected" : ""}>${stars(n)} (${n})</option>`).join("")}</select>
+            </div>
+            <div class="field">
+              <label class="label">Verified badge</label>
+              <select class="select" name="verified"><option value="yes" ${review?.verified !== false ? "selected" : ""}>Yes</option><option value="no" ${review?.verified === false ? "selected" : ""}>No</option></select>
+            </div>
+          </div>
+          <div class="field" data-field="rtext">
+            <label class="label">Review text <span class="req">*</span></label>
+            <textarea class="textarea" name="text" placeholder="What the customer said…">${esc(review?.text || "")}</textarea>
+            <div class="error-text"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" id="rvCancel">Cancel</button>
+        <button class="btn btn--primary" id="rvSave">${icon("check", 16)} ${isEdit ? "Save changes" : "Create"}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(backdrop);
+  const close = () => backdrop.remove();
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) close(); });
+  document.getElementById("rvClose").addEventListener("click", close);
+  document.getElementById("rvCancel").addEventListener("click", close);
+
+  document.getElementById("rvSave").addEventListener("click", async () => {
+    const form = document.getElementById("revForm");
+    let ok = true;
+    const nf = form.querySelector('[data-field="rname"]');
+    const tf = form.querySelector('[data-field="rtext"]');
+    const setErr = (field, msg) => { field.classList.toggle("field--invalid", !!msg); field.querySelector(".error-text").textContent = msg; };
+    if (!form.name.value.trim()) { setErr(nf, "Name is required."); ok = false; } else setErr(nf, "");
+    if (!form.text.value.trim()) { setErr(tf, "Review text is required."); ok = false; } else setErr(tf, "");
+    if (!ok) return;
+    await saveReview({
+      id: review?.id, createdAt: review?.createdAt,
+      name: form.name.value, role: form.role.value,
+      rating: +form.rating.value, text: form.text.value,
+      verified: form.verified.value === "yes",
+    });
+    toast(isEdit ? "Review updated" : "Review created");
+    close();
+    renderReviews();
+  });
+}
+
+// ---------------------------------------------------------------------------
+//  SETTINGS TAB (reviews channel link + social links)
+// ---------------------------------------------------------------------------
+const SOCIAL_ICONS = [
+  ["instagram", "Instagram"], ["send", "Telegram / Send"], ["tiktok", "TikTok"],
+  ["youtube", "YouTube"], ["x", "X"], ["globe", "Website"], ["mail", "Email"], ["phone", "Phone"], ["chat", "Chat"],
+];
+
+function socialRow(s = {}) {
+  return `
+    <div class="social-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+      <input class="input s-name" placeholder="Name" value="${esc(s.name || "")}" style="flex:0 0 130px">
+      <select class="select s-icon" style="flex:0 0 150px">${SOCIAL_ICONS.map(([v, l]) => `<option value="${v}" ${s.icon === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+      <input class="input s-href" placeholder="https://…" value="${esc(s.href || "")}" style="flex:1;min-width:180px">
+      <button type="button" class="icon-btn s-del" style="width:38px;height:38px;flex:0 0 auto" aria-label="Remove">${icon("trash", 15)}</button>
+    </div>`;
+}
+
+async function renderSettings() {
+  const panel = document.getElementById("panel");
+  let s;
+  try { s = await ensureSettingsAdminSeed(); }
+  catch (err) { panel.innerHTML = dbErrorHTML(err); return; }
+  panel.innerHTML = `
+    <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>To publish to the live site: <b>Export site.json</b> → replace <code>data/site.json</code> in your repo → commit &amp; push.</span></div>
+    <div class="panel" style="max-width:720px">
+      <div class="panel__title">${icon("chat", 18)} Reviews channel</div>
+      <div class="field" style="margin-top:12px">
+        <label class="label">Link to your channel with reviews (Telegram, Instagram, etc.)</label>
+        <input class="input" id="revChannel" value="${esc(s.reviewsChannelUrl || "")}" placeholder="https://t.me/yourchannel">
+        <p class="hint">Shown as a button on the Reviews page. Leave empty to hide it.</p>
+      </div>
+
+      <div class="hr" style="margin-block:var(--space-5)"></div>
+
+      <div class="panel__title">${icon("globe", 18)} Social links (footer)</div>
+      <div id="socialsList" style="margin-top:12px">${(s.socials || []).map(socialRow).join("")}</div>
+      <button type="button" class="btn btn--ghost btn--sm" id="addSocial">${icon("plus", 15)} Add social</button>
+
+      <div class="row-actions" style="margin-top:var(--space-5);flex-wrap:wrap">
+        <button class="btn btn--primary" id="saveSettings">${icon("check", 16)} Save</button>
+        <button class="btn btn--ghost" id="settingsExport">${icon("box", 15)} Export site.json</button>
+      </div>
+    </div>`;
+
+  const list = document.getElementById("socialsList");
+  const bindDelete = () => list.querySelectorAll(".s-del").forEach((b) => b.onclick = () => b.closest(".social-row").remove());
+  bindDelete();
+  document.getElementById("addSocial").addEventListener("click", () => {
+    list.insertAdjacentHTML("beforeend", socialRow({ icon: "instagram" }));
+    bindDelete();
+  });
+
+  const collect = () => ({
+    reviewsChannelUrl: document.getElementById("revChannel").value,
+    socials: [...list.querySelectorAll(".social-row")].map((row) => ({
+      name: row.querySelector(".s-name").value.trim(),
+      icon: row.querySelector(".s-icon").value,
+      href: row.querySelector(".s-href").value.trim(),
+      id: row.querySelector(".s-name").value.trim().toLowerCase().replace(/[^a-z0-9]/g, "") || row.querySelector(".s-icon").value,
+    })).filter((x) => x.href),
+  });
+
+  document.getElementById("saveSettings").addEventListener("click", async () => {
+    await saveSettings(collect());
+    toast("Settings saved — Export site.json to publish");
+  });
+  document.getElementById("settingsExport").addEventListener("click", async () => {
+    const saved = await saveSettings(collect()); // persist current form, then export it
+    const blob = new Blob([exportSettingsJSON(saved)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "site.json"; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("site.json downloaded — commit it to publish");
   });
 }
 

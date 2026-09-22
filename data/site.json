@@ -1,0 +1,10 @@
+{
+  "reviewsChannelUrl": "https://t.me/peakr",
+  "socials": [
+    { "id": "instagram", "name": "Instagram", "href": "https://instagram.com/peakr", "icon": "instagram" },
+    { "id": "telegram", "name": "Telegram", "href": "https://t.me/peakr", "icon": "send" },
+    { "id": "tiktok", "name": "TikTok", "href": "https://tiktok.com/@peakr", "icon": "tiktok" },
+    { "id": "youtube", "name": "YouTube", "href": "https://youtube.com/@peakr", "icon": "youtube" },
+    { "id": "x", "name": "X", "href": "https://x.com/peakr", "icon": "x" }
+  ]
+}

@@ -1,4 +1,5 @@
 import { SITE } from "../config.js?v=2";
+import { getPublishedReviews, getPublishedSettings } from "../db.js?v=2";
 import { icon, esc, initTheme, mountChrome, revealOnScroll, pageHero, countUp } from "../ui.js";
 import { getLang } from "../i18n.js";
 
@@ -11,6 +12,7 @@ const COPY = {
     eyebrow: "Reviews", title: "Trusted by athletes",
     subtitle: "Real feedback from lifters, runners and everyday athletes who fuel with PEAKR.",
     basedOn: "Based on 1,312 reviews", allTitle: "All reviews", verified: "Verified",
+    channel: "Reviews channel",
     followTitle: "Follow the movement", followDesc: "Join the crew for drops, tips and giveaways.",
     list: [
       ["Max K.", "Powerlifter", 5, "The pre-workout is insane — energy for the whole session and no crash. Shipping was quick too."],
@@ -28,6 +30,7 @@ const COPY = {
     eyebrow: "Отзывы", title: "Нам доверяют атлеты",
     subtitle: "Реальные отзывы лифтеров, бегунов и любителей, которые заправляются PEAKR.",
     basedOn: "На основе 1 312 отзывов", allTitle: "Все отзывы", verified: "Проверен",
+    channel: "Канал с отзывами",
     followTitle: "Присоединяйся", followDesc: "Подпишись — дропы, советы и розыгрыши.",
     list: [
       ["Максим К.", "Пауэрлифтинг", 5, "Предтрен — огонь, энергии на всю тренировку и без отката. Доставили быстро."],
@@ -46,24 +49,38 @@ const DIST = [[5, 88], [4, 9], [3, 2], [2, 1], [1, 0]];
 const initials = (n) => n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 function reviewCard(r, i) {
-  const [name, tag, rating, text] = r;
+  const name = r.name, tag = r.role || "", rating = r.rating || 5, text = r.text || "";
   const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
   return `
     <div class="review reveal">
       <div class="review__head">
         <span class="review__av" style="background:${AV[i % AV.length]}">${esc(initials(name))}</span>
         <span class="review__who"><b>${esc(name)}</b><span class="review__name" style="margin:0">${esc(tag)}</span></span>
-        <span class="review__badge">✓ ${esc(c().verified)}</span>
+        ${r.verified !== false ? `<span class="review__badge">✓ ${esc(c().verified)}</span>` : ""}
       </div>
       <div class="review__stars">${stars}</div>
       <p class="review__text">${esc(text)}</p>
     </div>`;
 }
+// map the built-in COPY arrays to review objects (fallback when the store is empty)
+const fallbackReviews = () => (c().list || []).map(([name, role, rating, text]) => ({ name, role, rating, text, verified: true }));
 const c = () => COPY[getLang()] || COPY.en;
 
-function init() {
+async function init() {
   mountChrome("reviews.html");
   const x = c();
+
+  let reviews = [], settings = { socials: SITE.socials || [], reviewsChannelUrl: "" };
+  try { reviews = await getPublishedReviews(); } catch {}
+  try { settings = await getPublishedSettings(); } catch {}
+  if (!reviews.length) reviews = fallbackReviews();
+  const socials = (settings.socials && settings.socials.length) ? settings.socials : (SITE.socials || []);
+  const channel = settings.reviewsChannelUrl;
+
+  const channelBtn = channel
+    ? `<a class="btn btn--primary" href="${esc(channel)}" target="_blank" rel="noopener">${icon("send", 16)} ${esc(x.channel)}</a>`
+    : "";
+
   document.getElementById("app").innerHTML = `
     ${pageHero({ eyebrow: `${esc(SITE.name)} · ${esc(x.eyebrow)}`, title: esc(x.title), subtitle: esc(x.subtitle), color: "#A98C9C" })}
     <section class="section" style="padding-top:0">
@@ -75,12 +92,13 @@ function init() {
         <div class="rbars">
           ${DIST.map(([star, pct]) => `<div class="rbar"><span>${star}★</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span>${pct}%</span></div>`).join("")}
         </div>
+        ${channelBtn ? `<div style="margin-top:var(--space-4)">${channelBtn}</div>` : ""}
       </div>
     </section>
 
     <section class="section" style="padding-top:0">
       <div class="section-head"><h2>${esc(x.allTitle)}</h2><span class="rule"></span></div>
-      <div class="reviews">${x.list.map((r, i) => reviewCard(r, i)).join("")}</div>
+      <div class="reviews">${reviews.map((r, i) => reviewCard(r, i)).join("")}</div>
     </section>
 
     <section class="section">
@@ -88,7 +106,7 @@ function init() {
         <h2>${esc(x.followTitle)}</h2>
         <p class="muted" style="max-width:42ch;margin:10px auto 0">${esc(x.followDesc)}</p>
         <div class="socials">
-          ${(SITE.socials || []).map((s) => `<a class="social" href="${esc(s.href)}" target="_blank" rel="noopener" aria-label="${esc(s.name)}">${icon(s.icon, 20)}</a>`).join("")}
+          ${socials.map((s) => `<a class="social" href="${esc(s.href)}" target="_blank" rel="noopener" aria-label="${esc(s.name)}">${icon(s.icon, 20)}</a>`).join("")}
         </div>
       </div>
     </section>`;

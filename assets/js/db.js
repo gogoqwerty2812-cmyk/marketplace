@@ -4,11 +4,13 @@
 import { SITE } from "./config.js?v=2";
 
 const DB_NAME = "marketplace_db";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const STORE_PRODUCTS = "products";
 const STORE_ORDERS = "orders";
 const STORE_TICKETS = "tickets";
 const STORE_CERTS = "certs";
+const STORE_REVIEWS = "reviews";
+const STORE_SETTINGS = "settings";
 
 let _dbPromise = null;
 
@@ -48,6 +50,13 @@ function openDB() {
       if (!db.objectStoreNames.contains(STORE_CERTS)) {
         const cs = db.createObjectStore(STORE_CERTS, { keyPath: "id" });
         cs.createIndex("createdAt", "createdAt");
+      }
+      if (!db.objectStoreNames.contains(STORE_REVIEWS)) {
+        const rs = db.createObjectStore(STORE_REVIEWS, { keyPath: "id" });
+        rs.createIndex("createdAt", "createdAt");
+      }
+      if (!db.objectStoreNames.contains(STORE_SETTINGS)) {
+        db.createObjectStore(STORE_SETTINGS, { keyPath: "key" });
       }
     };
     req.onblocked = () => {
@@ -276,6 +285,118 @@ export async function importCertsFromJSON(text) {
   await tx(STORE_CERTS, "readwrite", (os) => os.clear());
   await tx(STORE_CERTS, "readwrite", (os) => data.forEach((c, i) => os.put({ ...c, id: c.id || uid(), createdAt: c.createdAt || now - i, updatedAt: now })));
   localStorage.setItem("mkt_certs_seeded", "1");
+}
+
+// ---- Reviews ----------------------------------------------------------------
+const PUBLISHED_REVIEWS_URL = "data/reviews.json";
+
+export async function getReviews() {
+  const list = await tx(STORE_REVIEWS, "readonly", (os) => reqP(os.getAll()));
+  return list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+}
+export async function saveReview(r) {
+  const now = Date.now();
+  const rec = {
+    id: r.id || uid(),
+    name: r.name?.trim() || "Anonymous",
+    role: r.role?.trim() || "",
+    rating: Math.max(1, Math.min(5, Number(r.rating) || 5)),
+    text: r.text?.trim() || "",
+    verified: r.verified !== false,
+    createdAt: r.createdAt || now,
+    updatedAt: now,
+  };
+  await tx(STORE_REVIEWS, "readwrite", (os) => os.put(rec));
+  return rec;
+}
+export async function deleteReview(id) {
+  return tx(STORE_REVIEWS, "readwrite", (os) => os.delete(id));
+}
+export async function getPublishedReviews() {
+  try {
+    const res = await fetch(PUBLISHED_REVIEWS_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) return data.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+  } catch {}
+  return getReviews();
+}
+export async function ensureReviewAdminSeed() {
+  const count = await tx(STORE_REVIEWS, "readonly", (os) => reqP(os.count()));
+  if (count > 0 || localStorage.getItem("mkt_reviews_seeded")) return;
+  try {
+    const res = await fetch(PUBLISHED_REVIEWS_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        const now = Date.now();
+        await tx(STORE_REVIEWS, "readwrite", (os) => data.forEach((r, i) => os.put({ ...r, id: r.id || uid(), createdAt: r.createdAt || now - i, updatedAt: now })));
+      }
+    }
+  } catch {}
+  localStorage.setItem("mkt_reviews_seeded", "1");
+}
+export function exportReviewsJSON(list) {
+  return JSON.stringify(list, null, 2);
+}
+export async function importReviewsFromJSON(text) {
+  const data = JSON.parse(text);
+  if (!Array.isArray(data)) throw new Error("JSON must be an array of reviews");
+  const now = Date.now();
+  await tx(STORE_REVIEWS, "readwrite", (os) => os.clear());
+  await tx(STORE_REVIEWS, "readwrite", (os) => data.forEach((r, i) => os.put({ ...r, id: r.id || uid(), createdAt: r.createdAt || now - i, updatedAt: now })));
+  localStorage.setItem("mkt_reviews_seeded", "1");
+}
+
+// ---- Site settings (reviews channel link + social links) --------------------
+const PUBLISHED_SETTINGS_URL = "data/site.json";
+const DEFAULT_SETTINGS = { reviewsChannelUrl: "", socials: SITE.socials || [] };
+
+export async function getSettings() {
+  const doc = await tx(STORE_SETTINGS, "readonly", (os) => reqP(os.get("site")));
+  return doc?.value || null;
+}
+export async function saveSettings(obj) {
+  const value = {
+    reviewsChannelUrl: (obj.reviewsChannelUrl || "").trim(),
+    socials: Array.isArray(obj.socials) ? obj.socials.filter((s) => s && s.href) : [],
+    updatedAt: Date.now(),
+  };
+  await tx(STORE_SETTINGS, "readwrite", (os) => os.put({ key: "site", value }));
+  return value;
+}
+export async function getPublishedSettings() {
+  try {
+    const res = await fetch(PUBLISHED_SETTINGS_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === "object" && !Array.isArray(data)) return { ...DEFAULT_SETTINGS, ...data };
+    }
+  } catch {}
+  const local = await getSettings().catch(() => null);
+  return local ? { ...DEFAULT_SETTINGS, ...local } : { ...DEFAULT_SETTINGS };
+}
+export async function ensureSettingsAdminSeed() {
+  const existing = await getSettings().catch(() => null);
+  if (existing) return existing;
+  let seed = null;
+  try {
+    const res = await fetch(PUBLISHED_SETTINGS_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === "object" && !Array.isArray(data)) seed = data;
+    }
+  } catch {}
+  return saveSettings(seed || DEFAULT_SETTINGS);
+}
+export function exportSettingsJSON(obj) {
+  return JSON.stringify(obj, null, 2);
+}
+export async function importSettingsFromJSON(text) {
+  const data = JSON.parse(text);
+  if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("JSON must be a settings object");
+  return saveSettings(data);
 }
 
 // =============================================================================
