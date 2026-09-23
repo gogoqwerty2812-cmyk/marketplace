@@ -755,8 +755,9 @@ body.home:not(.scrolled) .site-header .icon-btn:hover { background: rgba(255,255
 .pdp-hero .gallery__dots i.on { background: #fff; }
 .pdp-hero .btn--primary { background: #fff; color: #20201e; border-color: #fff; }
 .pdp-hero .btn--primary:hover { background: rgba(255,255,255,.9); }
-.pdp-hero .qty { border-color: rgba(255,255,255,.45); }
+.pdp-hero .qty { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.14); }
 .pdp-hero .qty input, .pdp-hero .qty button { color: #fff; }
+.pdp-hero .qty button:hover { background: rgba(255,255,255,.2); }
 
 /* ================= Reusable colour-block page header ================= */
 .page-hero {
