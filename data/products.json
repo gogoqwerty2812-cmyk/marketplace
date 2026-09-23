@@ -1,5 +1,53 @@
 [
   {
+    "id": "s12",
+    "name": "Gold Standard Whey — Vanilla (5 lb)",
+    "category": "Protein",
+    "price": 64.99,
+    "stock": 22,
+    "description": "The classic 100% Whey in a big 5 lb tub — 24 g protein, 5.5 g BCAA and 4 g glutamine per scoop. Smooth vanilla, mixes instantly. 73 servings, best value per serving.",
+    "images": [
+      "assets/img/products/whey-gold.png"
+    ],
+    "createdAt": 1790176827386
+  },
+  {
+    "id": "s13",
+    "name": "PEAKR Whey — Strawberry (900 g)",
+    "category": "Protein",
+    "price": 39.99,
+    "stock": 30,
+    "description": "Our house whey concentrate in a fresh strawberry flavour — 23 g protein and 6.7 g BCAA per serving. European dairy, no clumping. 30 servings.",
+    "images": [
+      "assets/img/products/peakr-whey.png"
+    ],
+    "createdAt": 1790176826386
+  },
+  {
+    "id": "s14",
+    "name": "Muscle Grow XXL Gainer (4 kg)",
+    "category": "Mass Gainers",
+    "price": 69.99,
+    "stock": 14,
+    "description": "Serious mass fuel: ~1250 kcal, 50 g protein and complex carbs per serving with added creatine. For hard gainers who struggle to eat enough. 4 kg tub.",
+    "images": [
+      "assets/img/products/muscle-grow.png"
+    ],
+    "createdAt": 1790176825386
+  },
+  {
+    "id": "s15",
+    "name": "Pump Serum Non-Stim — Tropical",
+    "category": "Pre-Workout",
+    "price": 44.99,
+    "stock": 26,
+    "description": "Stimulant-free pump pre-workout with L-citrulline, betaine and Nitrosigine for skin-splitting pumps and focus — train any time of day, no crash. Tropical pineapple, 21 servings.",
+    "images": [
+      "assets/img/products/pump-serum.png"
+    ],
+    "createdAt": 1790176824386
+  },
+  {
     "id": "s1",
     "name": "Whey Protein Isolate",
     "category": "Protein",
