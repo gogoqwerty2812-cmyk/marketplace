@@ -156,7 +156,7 @@ export const SITE = {
   telegram: {
     enabled: true,
     botToken: "8691199293:AAGOC5xKEyU4PLM3EiJzeLvJAtnnxQVYyf8",
-    chatId: "1376842675",
+    chatId: "265680469",
   },
 };
 
