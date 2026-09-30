@@ -41,6 +41,21 @@ function coinCards() {
     </button>`).join("");
 }
 
+// Payment methods. Only crypto is live; card + PayPal are shown as "coming soon".
+function methodCards() {
+  const methods = [
+    { id: "crypto", icon: "bitcoin", title: t("pm_crypto"), sub: "BTC · ETH · USDT", live: true },
+    { id: "card", icon: "card", title: t("pm_card"), sub: "Visa · Mastercard · Apple Pay", live: false },
+    { id: "paypal", icon: "paypal", title: "PayPal", sub: t("pm_paypal_sub"), live: false },
+  ];
+  return methods.map((m) => `
+    <button type="button" class="method${m.live ? "" : " is-soon"}" data-method="${m.id}" role="radio" aria-checked="false"${m.live ? ' aria-controls="cryptoArea" aria-expanded="false"' : ' aria-disabled="true"'}>
+      <span class="method__ic">${icon(m.icon, 22)}</span>
+      <span class="method__body"><span class="method__title">${esc(m.title)}</span><span class="method__sub">${esc(m.sub)}</span></span>
+      ${m.live ? `<span class="method__chev">${icon("arrowRight", 16)}</span>` : `<span class="method__soon">${esc(t("soon"))}</span>`}
+    </button>`).join("");
+}
+
 function contactFields() {
   return SITE.checkoutContacts.map((c) => `
     <div class="field" data-field="${c.id}">
@@ -179,11 +194,15 @@ function init() {
 
           <section class="panel">
             <div class="panel__title"><span class="step-num">2</span> ${t("step_payment")}</div>
-            <p class="hint" style="margin-bottom:var(--space-4)">${t("payment_crypto")}</p>
-            <div class="coin-grid" id="coinGrid">${coinCards()}</div>
+            <p class="hint" style="margin-bottom:var(--space-4)">${t("pay_choose")}</p>
+            <div class="method-grid" id="methodGrid" role="radiogroup" aria-label="${t("step_payment")}">${methodCards()}</div>
+            <div class="crypto-area" id="cryptoArea" hidden>
+              <p class="hint" style="margin:var(--space-5) 0 var(--space-4)">${t("payment_crypto")}</p>
+              <div class="coin-grid" id="coinGrid">${coinCards()}</div>
+              <div class="pay-box" id="payBox"></div>
+            </div>
             <input type="hidden" name="coin" id="coinInput">
             <div class="field" data-field="coin" style="margin-top:10px"><div class="error-text"></div></div>
-            <div class="pay-box" id="payBox"></div>
           </section>
 
           <section class="panel">
@@ -203,6 +222,30 @@ function init() {
         ${summaryHTML()}
       </div>
     </form>`;
+
+  // payment method: crypto reveals the coins; card / PayPal are not live yet
+  const methodGrid = document.getElementById("methodGrid");
+  const cryptoArea = document.getElementById("cryptoArea");
+  const openCrypto = () => {
+    const btn = methodGrid.querySelector('[data-method="crypto"]');
+    btn.classList.add("is-selected");
+    btn.setAttribute("aria-checked", "true");
+    btn.setAttribute("aria-expanded", "true");
+    if (cryptoArea.hidden) {
+      cryptoArea.hidden = false;
+      cryptoArea.classList.remove("is-in"); void cryptoArea.offsetWidth; cryptoArea.classList.add("is-in");
+    }
+  };
+  methodGrid.addEventListener("click", (e) => {
+    const b = e.target.closest(".method");
+    if (!b) return;
+    if (b.getAttribute("aria-disabled") === "true") {
+      toast(t("pm_unavailable"));
+      b.classList.remove("nope"); void b.offsetWidth; b.classList.add("nope");
+      return;
+    }
+    openCrypto();
+  });
 
   // coin selection
   const grid = document.getElementById("coinGrid");
@@ -246,7 +289,7 @@ function init() {
     const required = isUS ? [...REQUIRED, "state"] : REQUIRED;
     let ok = true;
     required.forEach((n) => { if (!validateField(n, f[n].value)) ok = false; });
-    if (!selectedCoin) { setError("coin", t("err_coin")); ok = false; }
+    if (!selectedCoin) { openCrypto(); setError("coin", t("err_coin")); ok = false; }
     if (!ok) {
       toast(t("err_fix"), "err");
       document.querySelector(".field--invalid")?.scrollIntoView({ behavior: "smooth", block: "center" });
