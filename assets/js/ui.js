@@ -122,9 +122,10 @@ function langSelect() {
 }
 
 // Bold colour-block page header — the home/product look, reused everywhere.
-export function pageHero({ eyebrow = "", title = "", subtitle = "", color = "#94908c" } = {}) {
+export function pageHero({ eyebrow = "", title = "", subtitle = "", color = "#94908c", image = "" } = {}) {
   return `
-  <section class="page-hero" style="background:${color}">
+  <section class="page-hero${image ? " page-hero--photo" : ""}" style="background:${color}">
+    ${image ? `<img class="page-hero__photo" src="${image}" alt="" aria-hidden="true" data-parallax="0.08">` : ""}
     <div class="page-hero__grain"></div>
     <div class="page-hero__inner">
       ${eyebrow ? `<span class="page-hero__eyebrow">${eyebrow}</span>` : ""}
@@ -223,6 +224,15 @@ export function mountChrome(activePage = "index.html") {
       const y = window.scrollY;
       if (phInner) { phInner.style.transform = `translateY(${Math.min(y * 0.16, 70)}px)`; phInner.style.opacity = String(Math.max(0, 1 - y / 560)); }
       if (phGrain) phGrain.style.transform = `translateY(${Math.min(y * 0.26, 110)}px)`;
+      // subtle parallax for any photo marked data-parallax="strength"
+      const vh = window.innerHeight;
+      document.querySelectorAll("[data-parallax]").forEach((el) => {
+        const r = el.parentElement.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) return;
+        const k = parseFloat(el.dataset.parallax) || 0.1;
+        const off = ((r.top + r.height / 2) - vh / 2) * -k;
+        el.style.transform = `translate3d(0, ${off.toFixed(1)}px, 0) scale(1.08)`;
+      });
     }
     ticking = false;
   };

@@ -100,6 +100,21 @@ export const SITE = {
     "Other",
   ],
 
+  // Calm colour per category — product colour blocks, card tints, carousel.
+  categoryColors: {
+    "Protein": "#B98B79",
+    "Mass Gainers": "#7E9B88",
+    "Pre-Workout": "#A98C9C",
+    "Creatine": "#8496B0",
+    "Amino Acids": "#86A0A6",
+    "Vitamins & Health": "#9AAE86",
+    "Fat Burners": "#C08A78",
+    "Recovery": "#8E93B5",
+    "Energy Bars": "#B39A76",
+    "Accessories": "#97918B",
+    "Other": "#94908C",
+  },
+
   // ---- Optional contact methods shown at checkout (NOT required) ------------
   // Only the phone number is required; everything here is optional.
   // Names of apps are kept as-is; section titles/hints are translated.

@@ -5,44 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#F1ECE5">
   <meta name="robots" content="noindex">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23f97316'/><text x='50%25' y='55%25' font-size='20' font-family='Arial Narrow, Arial' font-weight='800' text-anchor='middle' dominant-baseline='central' fill='%230b0f14'>P</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23100d0b'/><text x='50%25' y='55%25' font-size='20' font-family='Georgia' font-weight='700' text-anchor='middle' dominant-baseline='central' fill='%23faf9f7'>P</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap">
   <title>PEAKR</title>
   <style>
     :root{
-      --bg:#0e1116; --fg:#f8fafc; --muted:#aeb7c2; --accent:#f97316;
-      --surface:#161b22; --border:#2a313c; --primary:#f97316; --primary-fg:#0b0f14;
-      --font-display:'Barlow Condensed','Arial Narrow',sans-serif; --font-body:'Barlow',system-ui,sans-serif;
+      --bg:#F1ECE5; --fg:#2B2620; --muted:#6C6257; --accent:#B06B4F; --accent-2:#C88B6F;
+      --surface:#FBF8F3; --border:#E1D8CB; --primary:#B06B4F; --primary-hover:#995A40; --block:#B98B79;
+      --font-display:'Anton','Oswald','Arial Narrow',sans-serif; --font-body:'Inter',system-ui,sans-serif;
       --font-mono:'JetBrains Mono',ui-monospace,monospace;
-    }
-    :root[data-theme="light"]{
-      --bg:#f4f5f7; --fg:#0f172a; --muted:#47536a; --accent:#ea580c;
-      --surface:#fff; --border:#dde2e9; --primary:#f97316; --primary-fg:#10151f;
     }
     *{box-sizing:border-box;margin:0}
     body{background:var(--bg);color:var(--fg);font-family:var(--font-body);min-height:100vh;
       display:grid;place-items:center;padding:24px;-webkit-font-smoothing:antialiased}
-    body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-      background:radial-gradient(60% 50% at 82% -5%,rgba(249,115,22,.16),transparent 70%)}
-    .wrap{text-align:center;max-width:540px}
-    .mark{width:46px;height:46px;border-radius:8px;background:var(--primary);color:var(--primary-fg);
-      display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:1.5rem;margin:0 auto 28px}
-    .code{font-family:var(--font-display);font-size:clamp(6rem,26vw,11rem);font-weight:800;line-height:.9;letter-spacing:.01em;text-transform:uppercase}
-    .code em{font-style:normal;color:var(--accent)}
-    h1{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:2rem;margin:8px 0 8px}
-    p{color:var(--muted);font-size:1.05rem;line-height:1.6;margin-bottom:28px}
+    .card{position:relative;overflow:hidden;isolation:isolate;width:min(640px,100%);text-align:center;
+      border-radius:16px;background:var(--block);color:#fff;padding:clamp(36px,7vw,64px) clamp(22px,5vw,48px);
+      box-shadow:0 30px 60px -20px rgba(60,45,35,.28);animation:rise .6s cubic-bezier(.16,1,.3,1) both}
+    .card::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+      background:repeating-linear-gradient(115deg,rgba(255,255,255,.08) 0 2px,transparent 2px 22px);
+      -webkit-mask-image:linear-gradient(90deg,transparent,#000 80%);mask-image:linear-gradient(90deg,transparent,#000 80%)}
+    .mark{width:46px;height:46px;border-radius:8px;background:#fff;color:var(--primary);
+      display:grid;place-items:center;font-family:var(--font-display);font-size:1.5rem;margin:0 auto 22px}
+    .code{font-family:var(--font-display);font-size:clamp(6rem,24vw,10.5rem);line-height:.88;letter-spacing:.01em}
+    .code em{font-style:normal;color:#2B2620;opacity:.85}
+    h1{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.01em;font-size:clamp(1.6rem,4.5vw,2.2rem);margin:14px 0 10px}
+    p{color:rgba(255,255,255,.88);font-size:1.02rem;line-height:1.6;margin:0 auto 28px;max-width:42ch}
     .btn{display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:6px;
-      background:var(--primary);color:var(--primary-fg);text-decoration:none;font-weight:700;font-size:.9rem;
-      text-transform:uppercase;letter-spacing:.04em;box-shadow:0 8px 24px rgba(249,115,22,.25);transition:transform .12s ease}
-    .btn:hover{transform:translateY(-1px)}
-    .eyebrow{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:var(--accent);margin-bottom:8px;font-weight:600}
+      background:#fff;color:#1c1612;text-decoration:none;font-weight:700;font-size:.9rem;
+      text-transform:uppercase;letter-spacing:.04em;box-shadow:0 10px 24px rgba(40,25,15,.2);
+      transition:transform .14s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(40,25,15,.26)}
+    .btn:active{transform:scale(.96)}
+    .btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--block),0 0 0 5px #fff}
+    .eyebrow{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.2em;font-size:.72rem;color:rgba(255,255,255,.85);font-weight:600;margin-bottom:16px}
+    @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){.card{animation:none}.btn{transition:none}}
   </style>
   <script>(function(){try{var s=localStorage.getItem('mkt_theme');document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
 </head>
 <body>
-  <div class="wrap">
+  <div class="card">
     <div class="mark">P</div>
     <div class="eyebrow" id="eyebrow">Page not found</div>
     <div class="code">4<em>0</em>4</div>

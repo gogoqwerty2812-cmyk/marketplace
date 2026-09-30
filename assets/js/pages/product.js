@@ -1,3 +1,4 @@
+import { SITE } from "../config.js?v=2";
 import { getPublishedProduct, getPublishedProducts } from "../db.js?v=2";
 import { Cart } from "../store.js";
 import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart } from "../ui.js";
@@ -5,21 +6,8 @@ import { t } from "../i18n.js";
 
 initTheme();
 
-// Calm category colour blocks — echo the carousel palette.
-const CATEGORY_COLORS = {
-  "Protein": "#B98B79",
-  "Mass Gainers": "#7E9B88",
-  "Pre-Workout": "#A98C9C",
-  "Creatine": "#8496B0",
-  "Amino Acids": "#86A0A6",
-  "Vitamins & Health": "#9AAE86",
-  "Fat Burners": "#C08A78",
-  "Recovery": "#8E93B5",
-  "Energy Bars": "#B39A76",
-  "Accessories": "#97918B",
-  "Other": "#94908C",
-  _default: "#94908C",
-};
+// Calm category colour blocks — shared palette lives in config.js
+const CATEGORY_COLORS = { ...SITE.categoryColors, _default: "#94908C" };
 
 // drag-to-scroll with momentum (mouse); touch keeps native inertia
 function enableDragScroll(el) {
@@ -65,7 +53,7 @@ async function relatedStrip(current) {
       <div class="section-head"><h2 style="font-size:1.8rem">${t("you_may_like")}</h2><span class="rule"></span></div>
       <div class="rail" id="relatedRail">
         ${pool.map((p) => `
-          <a class="card" href="product.html?id=${p.id}">
+          <a class="card" href="product.html?id=${p.id}" style="--cat:${CATEGORY_COLORS[p.category] || CATEGORY_COLORS._default}">
             <div class="card__media">${p.images?.[0] ? `<img src="${p.images[0]}" alt="${esc(p.name)}" loading="lazy">` : placeholder()}</div>
             <div class="card__body">
               <span class="card__cat">${esc(p.category)}</span>

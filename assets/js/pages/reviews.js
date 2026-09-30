@@ -82,9 +82,9 @@ async function init() {
     : "";
 
   document.getElementById("app").innerHTML = `
-    ${pageHero({ eyebrow: `${esc(SITE.name)} · ${esc(x.eyebrow)}`, title: esc(x.title), subtitle: esc(x.subtitle), color: "#A98C9C" })}
+    ${pageHero({ eyebrow: `${esc(SITE.name)} · ${esc(x.eyebrow)}`, title: esc(x.title), subtitle: esc(x.subtitle), color: "#A98C9C", image: "assets/img/bg/gym-floor.jpg" })}
     <section class="section" style="padding-top:0">
-      <div class="rating-card" style="max-width:560px">
+      <div class="rating-card rating-card--wide">
         <div class="rating-top">
           <div class="rating-big" id="ratingBig">4.9</div>
           <div><div class="rating-stars">★★★★★</div><div class="rating-count">${esc(x.basedOn)}</div></div>
@@ -92,7 +92,7 @@ async function init() {
         <div class="rbars">
           ${DIST.map(([star, pct]) => `<div class="rbar"><span>${star}★</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span>${pct}%</span></div>`).join("")}
         </div>
-        ${channelBtn ? `<div style="margin-top:var(--space-4)">${channelBtn}</div>` : ""}
+        ${channelBtn ? `<div class="rating-card__cta">${channelBtn}</div>` : ""}
       </div>
     </section>
 

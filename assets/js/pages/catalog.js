@@ -24,6 +24,14 @@ const COPY = {
       ["headset", "Real support", "Questions? We reply within hours."],
     ],
     revTitle: "What athletes say",
+    allReviews: "All reviews",
+    shopEyebrow: "Shop",
+    promoEyebrow: "PEAKR · Lab-tested fuel",
+    promoTitle: "Built for<br><em>heavy days.</em>",
+    promoDesc: "Genuine brands, honest doses and third-party lab reports for every batch. Pay in crypto, ship worldwide — no account needed.",
+    promoStats: [["1.3K+", "Athletes"], ["4.9★", "Avg rating"], ["100%", "Lab-tested"]],
+    promoCta1: "Shop now",
+    promoCta2: "Lab reports",
     rev: [
       ["The pre-workout is insane, energy for the whole session. Shipping was quick too.", "Max K. · powerlifter"],
       ["Legit gear, honest doses. My go-to for whey and creatine now.", "Elena R. · CrossFit"],
@@ -43,6 +51,14 @@ const COPY = {
       ["headset", "Поддержка", "Есть вопрос? Отвечаем в течение часов."],
     ],
     revTitle: "Отзывы атлетов",
+    allReviews: "Все отзывы",
+    shopEyebrow: "Магазин",
+    promoEyebrow: "PEAKR · Проверенное топливо",
+    promoTitle: "Создано для<br><em>тяжёлых дней.</em>",
+    promoDesc: "Оригинальные бренды, честные дозировки и независимые анализы каждой партии. Оплата криптой, доставка по миру — без регистрации.",
+    promoStats: [["1.3K+", "Атлетов"], ["4.9★", "Рейтинг"], ["100%", "Проверено"]],
+    promoCta1: "В каталог",
+    promoCta2: "Анализы",
     rev: [
       ["Предтрен — огонь, энергии на всю тренировку. Доставили быстро.", "Максим К. · пауэрлифтинг"],
       ["Оригинал, честные дозировки. Беру протеин и креатин только тут.", "Елена Р. · кроссфит"],
@@ -51,6 +67,7 @@ const COPY = {
   },
 };
 const L = () => COPY[getLang()] || COPY.en;
+const catColor = (c) => SITE.categoryColors?.[c] || "#94908C";
 
 /* ---------- TOONHUB-style hero carousel ---------------------------------- */
 // Featured rotation — each slot maps to a real product + its signature colours.
@@ -232,7 +249,7 @@ function card(p) {
     : placeholder();
   const out = p.stock <= 0;
   return `
-  <article class="card reveal" data-id="${p.id}">
+  <article class="card reveal" data-id="${p.id}" style="--cat:${catColor(p.category)}">
     <a class="card__media" href="product.html?id=${p.id}" aria-label="${esc(p.name)}">
       ${img}
       ${stockBadge(p) ? `<span style="position:absolute;top:12px;left:12px">${stockBadge(p)}</span>` : ""}
@@ -286,24 +303,52 @@ async function init() {
   document.getElementById("app").innerHTML = `
     ${toonHeroHTML(l)}
 
+    <section class="section section--tight">
+      <div class="bennies reveal">
+        ${l.ben.map(([ic, ttl, desc]) => `<div class="benny"><span class="benny__ic">${icon(ic, 20)}</span><div><h3>${ttl}</h3><p>${desc}</p></div></div>`).join("")}
+      </div>
+    </section>
+
     <section id="catalog" class="section">
+      <div class="catalog-head">
+        <div><span class="eyebrow">${esc(SITE.name)} · ${l.shopEyebrow}</span><h2>${t("nav_catalog")}</h2></div>
+        <span class="catalog-count" id="count"></span>
+      </div>
       <div class="toolbar">
         <div class="field search">${icon("search", 18)}<input class="input" id="q" type="search" placeholder="${t("search_ph")}" aria-label="${t("search_ph")}"></div>
-        <select class="select" id="cat" aria-label="${t("cat_all")}">
-          ${cats.map((c) => `<option value="${c}">${c === "all" ? t("cat_all") : esc(c)}</option>`).join("")}
-        </select>
         <select class="select" id="sort" aria-label="${t("sort_new")}">
           <option value="new">${t("sort_new")}</option>
           <option value="price-asc">${t("sort_price_asc")}</option>
           <option value="price-desc">${t("sort_price_desc")}</option>
         </select>
-        <span class="muted" id="count" style="margin-left:auto;font-family:var(--font-mono);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em"></span>
+      </div>
+      <div class="chips" id="cats" role="group" aria-label="${t("cat_all")}">
+        ${cats.map((c) => c === "all"
+          ? `<button type="button" class="chip is-active" data-cat="all" aria-pressed="true">${t("cat_all")}</button>`
+          : `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="false" style="--cat:${catColor(c)}"><i></i>${esc(c)}</button>`).join("")}
       </div>
       <div id="grid" class="grid-products" aria-busy="true">${skeletonCards(8)}</div>
     </section>
 
-    <section class="section reveal">
-      <div class="section-head"><h2>${l.revTitle}</h2><span class="rule"></span></div>
+    <section class="section">
+      <div class="promo reveal">
+        <img class="promo__img" src="assets/img/bg/barbell.jpg" alt="" aria-hidden="true" loading="lazy" data-parallax="0.1">
+        <div class="promo__scrim"></div>
+        <div class="promo__body">
+          <span class="promo__eyebrow">${l.promoEyebrow}</span>
+          <h2 class="promo__title">${l.promoTitle}</h2>
+          <p class="promo__desc">${l.promoDesc}</p>
+          <div class="promo__stats">${l.promoStats.map(([n, s]) => `<div class="promo__stat"><b>${n}</b><span>${s}</span></div>`).join("")}</div>
+          <div class="promo__actions">
+            <a class="btn btn--light btn--lg" href="#catalog">${icon("bag", 18)} ${l.promoCta1}</a>
+            <a class="btn btn--outline-light btn--lg" href="certificates.html">${icon("shield", 18)} ${l.promoCta2}</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" style="padding-top:0">
+      <div class="section-head"><h2>${l.revTitle}</h2><span class="rule"></span><a class="section-head__link" href="reviews.html">${l.allReviews} ${icon("arrowRight", 14)}</a></div>
       <div class="reviews">
         ${l.rev.map(([txt, name]) => `<div class="review"><div class="review__stars">★★★★★</div><p class="review__text">${txt}</p><div class="review__name">${name}</div></div>`).join("")}
       </div>
@@ -317,7 +362,17 @@ async function init() {
   onScroll();
 
   document.getElementById("q").addEventListener("input", (e) => { state.q = e.target.value; apply(); });
-  document.getElementById("cat").addEventListener("change", (e) => { state.cat = e.target.value; apply(); });
+  document.getElementById("cats").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    state.cat = chip.dataset.cat;
+    document.querySelectorAll("#cats .chip").forEach((c) => {
+      const on = c === chip;
+      c.classList.toggle("is-active", on);
+      c.setAttribute("aria-pressed", String(on));
+    });
+    apply();
+  });
   document.getElementById("sort").addEventListener("change", (e) => { state.sort = e.target.value; apply(); });
 
   document.getElementById("grid").addEventListener("click", (e) => {
