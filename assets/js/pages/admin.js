@@ -7,12 +7,20 @@ initTheme();
 const SESSION_KEY = "mkt_admin_ok";
 let tab = "products";
 let editingImages = []; // data URLs for the product form
-let knownCats = [];     // categories offered in the product form (config + existing)
-let knownSubs = [];     // subcategories seen on existing products
+let knownCats = [];     // categories offered in the product form
+let knownSubs = [];     // subcategories offered in the product form
+let adminSettings = null; // cached site settings (incl. categories/subcategories)
+
+async function loadSettings(force) {
+  if (!adminSettings || force) adminSettings = (await ensureSettingsAdminSeed().catch(() => null)) || {};
+  return adminSettings;
+}
 
 function refreshTaxonomy(products) {
-  const cats = new Set(SITE.categories || []);
-  const subs = new Set();
+  const base = (adminSettings && adminSettings.categories && adminSettings.categories.length)
+    ? adminSettings.categories : (SITE.categories || []);
+  const cats = new Set(base);
+  const subs = new Set((adminSettings && adminSettings.subcategories) || []);
   (products || []).forEach((p) => { if (p.category) cats.add(p.category); if (p.subcategory) subs.add(p.subcategory); });
   knownCats = [...cats];
   knownSubs = [...subs];
@@ -169,6 +177,7 @@ async function renderProducts() {
   let products;
   try {
     await ensureAdminSeed();
+    await loadSettings();
     products = await getProducts();
   } catch (err) {
     panel.innerHTML = dbErrorHTML(err);
@@ -387,6 +396,14 @@ function openProductModal(product) {
       featured: form.featured.checked,
       images: editingImages,
     });
+    // remember any brand-new category / subcategory so it joins the managed lists
+    const nc = form.category.value.trim(), ns = form.subcategory.value.trim();
+    const cats = ((adminSettings && adminSettings.categories) || []).slice();
+    const subs = ((adminSettings && adminSettings.subcategories) || []).slice();
+    let changed = false;
+    if (nc && !cats.includes(nc)) { cats.push(nc); changed = true; }
+    if (ns && !subs.includes(ns)) { subs.push(ns); changed = true; }
+    if (changed) { try { adminSettings = await saveSettings({ categories: cats, subcategories: subs }); } catch {} }
     toast(isEdit ? "Product updated" : "Product created");
     close();
     renderProducts();
@@ -770,9 +787,15 @@ function socialRow(s = {}) {
 
 async function renderSettings() {
   const panel = document.getElementById("panel");
-  let s;
-  try { s = await ensureSettingsAdminSeed(); }
+  let s, prods = [];
+  try { s = await ensureSettingsAdminSeed(); prods = await getProducts().catch(() => []); }
   catch (err) { panel.innerHTML = dbErrorHTML(err); return; }
+  adminSettings = s;
+  const catCount = (n) => prods.filter((p) => p.category === n).length;
+  const subCount = (n) => prods.filter((p) => p.subcategory === n).length;
+  const taxChips = (items, kind, count) => (items || []).length
+    ? items.map((n) => `<span class="tax-chip" data-kind="${kind}" data-name="${esc(n)}">${esc(n)}${count(n) ? `<em>${count(n)}</em>` : ""}<button type="button" class="tax-del" aria-label="Delete">${icon("close", 12)}</button></span>`).join("")
+    : `<span class="hint">—</span>`;
   panel.innerHTML = `
     <div class="alert alert--info" style="margin-bottom:var(--space-4);font-size:.82rem">${icon("shield", 14)} <span>Recommended: use <b>Export all</b> (top) → <code>data/content.json</code> — one file for the whole site. The button below exports only these settings.</span></div>
     <div class="panel" style="max-width:720px">
@@ -792,6 +815,25 @@ async function renderSettings() {
       <div class="row-actions" style="margin-top:var(--space-5);flex-wrap:wrap">
         <button class="btn btn--primary" id="saveSettings">${icon("check", 16)} Save</button>
         <button class="btn btn--ghost" id="settingsExport">${icon("box", 15)} Export site.json</button>
+      </div>
+    </div>
+
+    <div class="panel" style="max-width:720px;margin-top:var(--space-5)">
+      <div class="panel__title">${icon("box", 18)} Categories</div>
+      <p class="hint" style="margin-top:0">Shown as filter chips on the homepage and in the product form. Deleting one removes its chip; existing products keep their value.</p>
+      <div class="tax-wrap" id="catWrap" style="margin:12px 0">${taxChips(s.categories, "cat", catCount)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="input" id="newCat" placeholder="New category" style="flex:1;min-width:160px">
+        <button type="button" class="btn btn--ghost btn--sm" id="addCat">${icon("plus", 15)} Add</button>
+      </div>
+
+      <div class="hr" style="margin-block:var(--space-5)"></div>
+
+      <div class="panel__title">${icon("box", 18)} Subcategories</div>
+      <div class="tax-wrap" id="subWrap" style="margin:12px 0">${taxChips(s.subcategories, "sub", subCount)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input class="input" id="newSub" placeholder="New subcategory" style="flex:1;min-width:160px">
+        <button type="button" class="btn btn--ghost btn--sm" id="addSub">${icon("plus", 15)} Add</button>
       </div>
     </div>`;
 
@@ -824,6 +866,35 @@ async function renderSettings() {
     const a = document.createElement("a"); a.href = url; a.download = "site.json"; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast("site.json downloaded — commit it to publish");
+  });
+
+  // ---- categories / subcategories manager (saves immediately) ----
+  const applyTax = async (patch) => { adminSettings = await saveSettings(patch); renderSettings(); };
+  const addFrom = async (inputId, key) => {
+    const v = document.getElementById(inputId).value.trim(); if (!v) return;
+    const cur = (adminSettings[key] || []);
+    if (cur.includes(v)) { toast("Already in the list"); return; }
+    await applyTax({ [key]: [...cur, v] });
+    toast("Added");
+  };
+  document.getElementById("addCat").addEventListener("click", () => addFrom("newCat", "categories"));
+  document.getElementById("addSub").addEventListener("click", () => addFrom("newSub", "subcategories"));
+  ["newCat", "newSub"].forEach((id) => document.getElementById(id).addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); addFrom(id, id === "newCat" ? "categories" : "subcategories"); }
+  }));
+  document.getElementById("catWrap").addEventListener("click", async (e) => {
+    const b = e.target.closest(".tax-del"); if (!b) return;
+    const name = b.closest(".tax-chip").dataset.name;
+    const used = (await getProducts().catch(() => [])).filter((p) => p.category === name).length;
+    if (used && !confirm(`“${name}” is used by ${used} product(s). Remove it from the list anyway? Those products keep the category.`)) return;
+    await applyTax({ categories: (adminSettings.categories || []).filter((c) => c !== name) });
+    toast("Category removed");
+  });
+  document.getElementById("subWrap").addEventListener("click", async (e) => {
+    const b = e.target.closest(".tax-del"); if (!b) return;
+    const name = b.closest(".tax-chip").dataset.name;
+    await applyTax({ subcategories: (adminSettings.subcategories || []).filter((c) => c !== name) });
+    toast("Subcategory removed");
   });
 }
 

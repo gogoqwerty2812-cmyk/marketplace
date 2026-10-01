@@ -1112,3 +1112,15 @@ img.thumb-xs { object-fit: contain; padding: 2px; }
 /* admin: tabs scroll horizontally instead of overflowing the page on small screens */
 .tabs { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
+
+/* category chips: draggable affordance */
+.chips { cursor: grab; }
+.chips.dragging { cursor: grabbing; scroll-snap-type: none; }
+.chips.dragging .chip { pointer-events: none; }
+
+/* admin: category / subcategory manager */
+.tax-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.tax-chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 7px 7px 13px; border-radius: var(--r-pill); background: var(--surface-2); border: 1px solid var(--border); font-size: .85rem; font-weight: 600; }
+.tax-chip em { font-style: normal; font-family: var(--font-mono); font-size: .62rem; color: var(--fg-subtle); background: var(--bg); padding: 1px 6px; border-radius: var(--r-pill); }
+.tax-del { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 0; background: transparent; color: var(--fg-subtle); cursor: pointer; transition: background .15s var(--ease), color .15s var(--ease); }
+.tax-del:hover { background: var(--danger-weak); color: var(--danger); }

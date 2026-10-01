@@ -381,18 +381,27 @@ export async function importReviewsFromJSON(text) {
 
 // ---- Site settings (reviews channel link + social links) --------------------
 const PUBLISHED_SETTINGS_URL = "data/site.json";
-const DEFAULT_SETTINGS = { reviewsChannelUrl: "", socials: SITE.socials || [] };
+const DEFAULT_SETTINGS = {
+  reviewsChannelUrl: "",
+  socials: SITE.socials || [],
+  categories: [...(SITE.categories || [])],
+  subcategories: [],
+};
 
 export async function getSettings() {
   const doc = await tx(STORE_SETTINGS, "readonly", (os) => reqP(os.get("site")));
   return doc?.value || null;
 }
+// Merge-save: fields not passed are preserved (so saving socials won't wipe
+// categories, and vice-versa).
 export async function saveSettings(obj) {
-  const value = {
-    reviewsChannelUrl: (obj.reviewsChannelUrl || "").trim(),
-    socials: Array.isArray(obj.socials) ? obj.socials.filter((s) => s && s.href) : [],
-    updatedAt: Date.now(),
-  };
+  const cur = (await getSettings().catch(() => null)) || {};
+  const value = { ...DEFAULT_SETTINGS, ...cur, ...obj };
+  value.reviewsChannelUrl = (value.reviewsChannelUrl || "").trim();
+  value.socials = Array.isArray(value.socials) ? value.socials.filter((s) => s && s.href) : [];
+  value.categories = Array.isArray(value.categories) ? value.categories.filter(Boolean) : [...(SITE.categories || [])];
+  value.subcategories = Array.isArray(value.subcategories) ? value.subcategories.filter(Boolean) : [];
+  value.updatedAt = Date.now();
   await tx(STORE_SETTINGS, "readwrite", (os) => os.put({ key: "site", value }));
   return value;
 }

@@ -1,5 +1,5 @@
 import { SITE } from "../config.js?v=2";
-import { getPublishedProducts } from "../db.js?v=2";
+import { getPublishedProducts, getPublishedSettings } from "../db.js?v=2";
 import { Cart } from "../store.js";
 import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor } from "../ui.js";
 import { t, getLang } from "../i18n.js";
@@ -319,9 +319,12 @@ async function init() {
   }
   buildFeatured(ALL);
 
-  // categories actually present (config order first, then any custom ones added in admin)
+  // category order comes from admin-managed settings (falls back to config)
+  let siteSettings = {};
+  try { siteSettings = await getPublishedSettings(); } catch {}
+  const managed = (siteSettings.categories && siteSettings.categories.length) ? siteSettings.categories : SITE.categories;
   const present = new Set(ALL.map((p) => p.category).filter(Boolean));
-  const cats = ["all", ...SITE.categories.filter((c) => present.has(c)), ...[...present].filter((c) => !SITE.categories.includes(c))];
+  const cats = ["all", ...managed.filter((c) => present.has(c)), ...[...present].filter((c) => !managed.includes(c))];
 
   app.innerHTML = `
     ${toonHeroHTML(l)}
@@ -396,6 +399,20 @@ async function init() {
     });
     apply();
   });
+  // drag-to-scroll the category chips (mouse) + vertical wheel → horizontal
+  (function enableChipDrag() {
+    const el = document.getElementById("cats");
+    if (!el) return;
+    let down = false, moved = false, startX = 0, startLeft = 0;
+    el.addEventListener("pointerdown", (e) => { if (e.pointerType === "touch") return; down = true; moved = false; startX = e.clientX; startLeft = el.scrollLeft; el.classList.add("dragging"); });
+    el.addEventListener("pointermove", (e) => { if (!down) return; const dx = e.clientX - startX; if (Math.abs(dx) > 4) moved = true; el.scrollLeft = startLeft - dx; });
+    const up = () => { down = false; el.classList.remove("dragging"); };
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointerleave", up);
+    el.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    el.addEventListener("wheel", (e) => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { el.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+  })();
+
   document.getElementById("sort").addEventListener("change", (e) => { state.sort = e.target.value; apply(); });
 
   document.getElementById("grid").addEventListener("click", (e) => {
