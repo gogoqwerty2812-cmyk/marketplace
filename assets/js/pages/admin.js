@@ -40,7 +40,7 @@ function fileToResizedDataURL(file, max = 1200, quality = 0.82) {
 function renderLogin() {
   const app = document.getElementById("app");
   app.innerHTML = `
-    <div style="max-width:400px;margin:8vh auto 0" class="reveal">
+    <div style="max-width:400px;margin:8vh auto 0" class="reveal in">
       <div class="panel">
         <div style="text-align:center;margin-bottom:var(--space-5)">
           <div class="confirm-check" style="margin-bottom:12px">${icon("lock", 30)}</div>

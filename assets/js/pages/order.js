@@ -54,7 +54,7 @@ async function init() {
 
   const date = new Date(o.createdAt).toLocaleString();
   app.innerHTML = `
-    <div class="confirm-hero reveal">
+    <div class="confirm-hero reveal in">
       <div class="confirm-check">${icon("check", 38)}</div>
       <h1 style="font-size:2.6rem">${t("thank_you")}</h1>
       <p class="muted">${t("order_word")} <b>#${o.id.toUpperCase()}</b> · ${esc(date)}</p>
