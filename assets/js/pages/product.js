@@ -1,13 +1,9 @@
-import { SITE } from "../config.js?v=2";
 import { getPublishedProduct, getPublishedProducts } from "../db.js?v=2";
 import { Cart } from "../store.js";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart } from "../ui.js";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart, catColor } from "../ui.js";
 import { t } from "../i18n.js";
 
 initTheme();
-
-// Calm category colour blocks — shared palette lives in config.js
-const CATEGORY_COLORS = { ...SITE.categoryColors, _default: "#94908C" };
 
 // drag-to-scroll with momentum (mouse); touch keeps native inertia
 function enableDragScroll(el) {
@@ -53,7 +49,7 @@ async function relatedStrip(current) {
       <div class="section-head"><h2 style="font-size:1.8rem">${t("you_may_like")}</h2><span class="rule"></span></div>
       <div class="rail" id="relatedRail">
         ${pool.map((p) => `
-          <a class="card" href="product.html?id=${p.id}" style="--cat:${CATEGORY_COLORS[p.category] || CATEGORY_COLORS._default}">
+          <a class="card" href="product.html?id=${p.id}" style="--cat:${catColor(p.category)}">
             <div class="card__media">${p.images?.[0] ? `<img src="${p.images[0]}" alt="${esc(p.name)}" loading="lazy">` : placeholder()}</div>
             <div class="card__body">
               <span class="card__cat">${esc(p.category)}</span>
@@ -95,9 +91,8 @@ async function init() {
   const out = p.stock <= 0;
   let currentIndex = 0;
 
-  const catColor = CATEGORY_COLORS[p.category] || CATEGORY_COLORS._default;
   app.innerHTML = `
-    <section class="pdp-hero" style="background:${catColor}">
+    <section class="pdp-hero" style="background:${catColor(p.category)}">
       <div class="pdp-hero__grain"></div>
       <div class="pdp-hero__inner">
         <a class="navlink pdp-back" href="index.html" style="display:inline-flex;gap:6px;align-items:center;margin-bottom:var(--space-4)">${icon("arrowLeft", 16)} ${t("back_to_catalog")}</a>
@@ -109,7 +104,7 @@ async function init() {
         </div>` : ""}
       </div>
       <div class="stack">
-        <span class="card__cat">${esc(p.category)}</span>
+        <span class="card__cat">${esc(p.category)}${p.subcategory ? ` · ${esc(p.subcategory)}` : ""}</span>
         <h1 class="pdp__title">${esc(p.name)}</h1>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
           <span class="price">${money(p.price)}</span>
@@ -129,7 +124,6 @@ async function init() {
         </div>
         <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:8px" class="muted">
           <span style="display:inline-flex;gap:6px;align-items:center">${icon("truck", 16)} ${t("ships_worldwide")}</span>
-          <span style="display:inline-flex;gap:6px;align-items:center">${icon("shield", 16)} ${t("crypto_secured")}</span>
         </div>
       </div>
     </div>

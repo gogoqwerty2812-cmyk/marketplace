@@ -1,7 +1,7 @@
 import { SITE } from "../config.js?v=2";
 import { getPublishedProducts } from "../db.js?v=2";
 import { Cart } from "../store.js";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart } from "../ui.js";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor } from "../ui.js";
 import { t, getLang } from "../i18n.js";
 
 initTheme();
@@ -67,16 +67,19 @@ const COPY = {
   },
 };
 const L = () => COPY[getLang()] || COPY.en;
-const catColor = (c) => SITE.categoryColors?.[c] || "#94908C";
 
 /* ---------- TOONHUB-style hero carousel ---------------------------------- */
-// Featured rotation — each slot maps to a real product + its signature colours.
-const FEATURED = [
-  { id: "s1",  name: "Whey Protein Isolate", cat: "Protein",      img: "assets/img/products/whey-gold.png",   bg: "#B98B79", panel: "#F79B7F" },
-  { id: "s2",  name: "Mass Gainer 5000",     cat: "Mass Gainers", img: "assets/img/products/muscle-grow.png", bg: "#7E9B88", panel: "#85CC92" },
-  { id: "s3",  name: "Pre-Workout Blackout", cat: "Pre-Workout",  img: "assets/img/products/pump-serum.png",  bg: "#A98C9C", panel: "#ED9DC4" },
-  { id: "s11", name: "EgoLab Whey 450g",      cat: "Protein",      img: "assets/img/products/peakr-whey.png",  bg: "#8496B0", panel: "#8DC4FF" },
-];
+// Featured rotation — built from products the seller marks "Show on home".
+let FEATURED = [];
+function buildFeatured(products) {
+  let list = products.filter((p) => p.featured);
+  if (!list.length) list = products.slice(0, 4); // fallback: newest 4
+  FEATURED = list.slice(0, 8).map((p) => ({
+    id: p.id, name: p.name, cat: p.category || "",
+    img: (p.images && p.images[0]) || "", bg: catColor(p.category),
+  }));
+  return FEATURED;
+}
 
 function toonHeroHTML(l) {
   const items = FEATURED.map((f, i) => `
@@ -130,8 +133,12 @@ function initToon() {
   // preload
   FEATURED.forEach((f) => { const im = new Image(); im.src = f.img; });
 
-  const Z = { center: 20, left: 10, right: 10, back: 5 };
+  const Z = { center: 20, left: 10, right: 10, back: 5, hidden: 0 };
   function styleFor(role) {
+    if (role === "hidden") return {
+      transform: "translateX(-50%) scale(.6)", filter: "blur(6px)", opacity: "0", left: "50%",
+      height: isMobile ? "13%" : "20%", bottom: isMobile ? "34%" : "16%",
+    };
     if (role === "center") return {
       transform: `translateX(-50%) scale(${isMobile ? 1 : 1})`,
       filter: "none", opacity: "1", left: "50%",
@@ -152,16 +159,18 @@ function initToon() {
 
   function roleOf(i) {
     if (i === activeIndex) return "center";
-    if (i === (activeIndex + N - 1) % N) return "left";
-    if (i === (activeIndex + 1) % N) return "right";
-    return "back";
+    if (N >= 2 && i === (activeIndex + 1) % N) return "right";
+    if (N >= 3 && i === (activeIndex + N - 1) % N) return "left";
+    if (N >= 4 && i === (activeIndex + 2) % N) return "back";
+    return "hidden";
   }
 
   function render() {
     items.forEach((el, i) => {
       const role = roleOf(i);
       Object.assign(el.style, styleFor(role));
-      el.style.zIndex = String(Z[role]);
+      el.style.zIndex = String(Z[role] ?? 0);
+      el.style.pointerEvents = role === "hidden" ? "none" : "auto";
     });
     const f = FEATURED[activeIndex];
     section.style.backgroundColor = f.bg;
@@ -298,9 +307,23 @@ async function init() {
   mountChrome("index.html");
   document.body.classList.add("home");
 
-  const cats = ["all", ...SITE.categories];
   const l = L();
-  document.getElementById("app").innerHTML = `
+  const app = document.getElementById("app");
+
+  // load the shared catalog first — it drives both the hero carousel and the grid
+  try {
+    ALL = await getPublishedProducts();
+  } catch (err) {
+    app.innerHTML = `<div class="empty" style="padding-top:120px">${icon("box", 44)}<h3>${t("nothing_found")}</h3><p style="max-width:38ch;margin-inline:auto">${esc(err.message || String(err))}</p><button class="btn btn--primary" style="margin-top:16px" onclick="location.reload()">${icon("arrowRight", 16)} ${t("start_shopping")}</button></div>`;
+    return;
+  }
+  buildFeatured(ALL);
+
+  // categories actually present (config order first, then any custom ones added in admin)
+  const present = new Set(ALL.map((p) => p.category).filter(Boolean));
+  const cats = ["all", ...SITE.categories.filter((c) => present.has(c)), ...[...present].filter((c) => !SITE.categories.includes(c))];
+
+  app.innerHTML = `
     ${toonHeroHTML(l)}
 
     <section class="section section--tight">
@@ -327,7 +350,7 @@ async function init() {
           ? `<button type="button" class="chip is-active" data-cat="all" aria-pressed="true">${t("cat_all")}</button>`
           : `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="false" style="--cat:${catColor(c)}"><i></i>${esc(c)}</button>`).join("")}
       </div>
-      <div id="grid" class="grid-products" aria-busy="true">${skeletonCards(8)}</div>
+      <div id="grid" class="grid-products"></div>
     </section>
 
     <section class="section">
@@ -387,19 +410,6 @@ async function init() {
     toast(t("added_toast", { name: p.name }));
   });
 
-  const grid = document.getElementById("grid");
-  try {
-    ALL = await getPublishedProducts();
-  } catch (err) {
-    grid.removeAttribute("aria-busy");
-    grid.className = "";
-    grid.innerHTML = `<div class="empty">${icon("box", 44)}<h3>${t("nothing_found")}</h3><p style="max-width:38ch;margin-inline:auto">${esc(err.message || String(err))}</p><button class="btn btn--primary" style="margin-top:16px" onclick="location.reload()">${icon("arrowRight", 16)} ${t("start_shopping")}</button></div>`;
-    return;
-  }
-  grid.removeAttribute("aria-busy");
-  const inStock = ALL.reduce((n, p) => n + (p.stock > 0 ? p.stock : 0), 0);
-  const heroCount = document.getElementById("heroCount");
-  if (heroCount) heroCount.textContent = inStock;
   apply();
   revealOnScroll();
 }

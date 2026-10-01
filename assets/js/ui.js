@@ -31,6 +31,7 @@ export const icon = (name, size = 20) => {
     upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
     close: '<path d="M18 6 6 18M6 6l12 12"/>',
     star: '<path d="M12 2l3 6.3 6.9 1-5 4.8 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.8 6.9-1z"/>',
+    bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/>',
     truck: '<path d="M1 3h15v13H1zM16 8h4l3 3v5h-7M5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/>',
     phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.72c.13.81.36 1.6.68 2.34a2 2 0 0 1-.45 2.11L8.1 9.91a16 16 0 0 0 6 6l1.74-1.74a2 2 0 0 1 2.11-.45c.74.32 1.53.55 2.34.68A2 2 0 0 1 22 16.92Z"/>',
@@ -122,6 +123,16 @@ function langSelect() {
       ${LANGUAGES.map((l) => `<option value="${l.code}" ${l.code === cur ? "selected" : ""}>${l.short}</option>`).join("")}
     </select>
   </div>`;
+}
+
+// Calm colour for a category — from config, or a deterministic muted tone for
+// custom categories the seller adds in the admin.
+export function catColor(name) {
+  const map = (SITE.categoryColors) || {};
+  if (name && map[name]) return map[name];
+  let h = 0;
+  for (const ch of String(name || "")) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `hsl(${h} 26% 60%)`;
 }
 
 // Bold colour-block page header — the home/product look, reused everywhere.

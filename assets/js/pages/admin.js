@@ -7,6 +7,16 @@ initTheme();
 const SESSION_KEY = "mkt_admin_ok";
 let tab = "products";
 let editingImages = []; // data URLs for the product form
+let knownCats = [];     // categories offered in the product form (config + existing)
+let knownSubs = [];     // subcategories seen on existing products
+
+function refreshTaxonomy(products) {
+  const cats = new Set(SITE.categories || []);
+  const subs = new Set();
+  (products || []).forEach((p) => { if (p.category) cats.add(p.category); if (p.subcategory) subs.add(p.subcategory); });
+  knownCats = [...cats];
+  knownSubs = [...subs];
+}
 
 // ---- image downscale to keep IndexedDB light -------------------------------
 function fileToResizedDataURL(file, max = 1200, quality = 0.82) {
@@ -83,7 +93,7 @@ function renderDashboard() {
         <span class="eyebrow">${esc(SITE.name)}</span>
         <h1 style="font-size:2.2rem">Seller dashboard</h1>
       </div>
-      <div style="display:flex;gap:10px;align-items:center">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:100%">
         <div class="tabs" id="tabs">
           <button class="tab is-active" data-tab="products">Products</button>
           <button class="tab" data-tab="orders">Orders</button>
@@ -178,13 +188,14 @@ async function renderProducts() {
     ${products.length ? `
     <div class="table-wrap">
       <table class="data">
-        <thead><tr><th></th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+        <thead><tr><th></th><th>Name</th><th>Category</th><th>Home</th><th>Price</th><th>Stock</th><th></th></tr></thead>
         <tbody>
           ${products.map((p) => `
             <tr>
               <td>${p.images?.[0] ? `<img class="thumb-xs" src="${p.images[0]}" alt="">` : `<div class="thumb-xs"></div>`}</td>
-              <td style="font-weight:600">${esc(p.name)}</td>
+              <td style="font-weight:600">${esc(p.name)}${p.subcategory ? `<br><small class="muted" style="font-weight:400">${esc(p.subcategory)}</small>` : ""}</td>
               <td><span class="badge">${esc(p.category)}</span></td>
+              <td>${p.featured ? `<span class="badge badge--accent" title="On the home carousel">${icon("bolt", 12)} On</span>` : `<span class="muted">—</span>`}</td>
               <td>${money(p.price)}</td>
               <td>${p.stock <= 0 ? '<span class="badge badge--out">0</span>' : p.stock <= 5 ? `<span class="badge badge--low">${p.stock}</span>` : p.stock}</td>
               <td><div class="row-actions">
@@ -213,6 +224,7 @@ async function renderProducts() {
     try { await importProductsFromJSON(await file.text()); toast("Products imported"); renderProducts(); }
     catch (err) { toast("Import failed: " + err.message, "err"); }
   });
+  refreshTaxonomy(products);
   panel.querySelectorAll(".edit").forEach((b) => b.addEventListener("click", async () => {
     const p = products.find((x) => x.id === b.dataset.id);
     openProductModal(p);
@@ -262,12 +274,23 @@ function openProductModal(product) {
               <input class="input" name="stock" type="number" min="0" step="1" value="${product?.stock ?? 0}">
             </div>
           </div>
-          <div class="field">
-            <label class="label">Category</label>
-            <select class="select" name="category">
-              ${SITE.categories.map((c) => `<option ${product?.category === c ? "selected" : ""}>${esc(c)}</option>`).join("")}
-            </select>
+          <div class="form-row">
+            <div class="field">
+              <label class="label">Category</label>
+              <input class="input" name="category" list="catList" value="${esc(product?.category || "")}" placeholder="e.g. Protein — or type a new one" autocomplete="off">
+              <datalist id="catList">${knownCats.map((c) => `<option value="${esc(c)}"></option>`).join("")}</datalist>
+              <div class="hint">Pick one or type your own.</div>
+            </div>
+            <div class="field">
+              <label class="label">Subcategory</label>
+              <input class="input" name="subcategory" list="subList" value="${esc(product?.subcategory || "")}" placeholder="e.g. Isolate (optional)" autocomplete="off">
+              <datalist id="subList">${knownSubs.map((c) => `<option value="${esc(c)}"></option>`).join("")}</datalist>
+            </div>
           </div>
+          <label class="field" style="display:flex;gap:11px;align-items:flex-start;cursor:pointer;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-input);padding:13px 14px">
+            <input type="checkbox" name="featured" ${product?.featured ? "checked" : ""} style="width:18px;height:18px;margin-top:1px;accent-color:var(--accent);flex:0 0 auto">
+            <span><span style="font-weight:600;display:block">${icon("bolt", 14)} Show on the home screen</span><span class="hint" style="margin-top:2px">Featured in the big rotating carousel on the homepage.</span></span>
+          </label>
           <div class="field">
             <label class="label">Photos</label>
             <div class="uploader" id="uploader">
@@ -359,7 +382,9 @@ function openProductModal(product) {
       description: form.description.value,
       price: +form.price.value,
       stock: +form.stock.value || 0,
-      category: form.category.value,
+      category: form.category.value.trim() || "Other",
+      subcategory: form.subcategory.value,
+      featured: form.featured.checked,
       images: editingImages,
     });
     toast(isEdit ? "Product updated" : "Product created");
