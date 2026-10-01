@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="EgoLab">
+  <rect width="64" height="64" rx="15" fill="#B06B4F"/>
+  <g fill="#fff">
+    <!-- top bar -->
+    <path d="M20 16 L50 16 L46 25 L16 25 Z"/>
+    <!-- middle bar (shorter) -->
+    <path d="M18.3 28 L44 28 L40 37 L14.3 37 Z"/>
+    <!-- bottom bar -->
+    <path d="M16.6 40 L48 40 L44 49 L12.6 49 Z"/>
+    <!-- diagonal speed slash, bottom-left -->
+    <path d="M24 25 L31 25 L19 49 L12 49 Z"/>
+  </g>
+</svg>

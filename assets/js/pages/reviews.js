@@ -10,7 +10,7 @@ const AV = ["#7c3aed", "#db2777", "#0891b2", "#16a34a", "#ea580c", "#8b5cf6", "#
 const COPY = {
   en: {
     eyebrow: "Reviews", title: "Trusted by athletes",
-    subtitle: "Real feedback from lifters, runners and everyday athletes who fuel with PEAKR.",
+    subtitle: "Real feedback from lifters, runners and everyday athletes who fuel with EgoLab.",
     basedOn: "Based on 1,312 reviews", allTitle: "All reviews", verified: "Verified",
     channel: "Reviews channel",
     followTitle: "Follow the movement", followDesc: "Join the crew for drops, tips and giveaways.",
@@ -28,7 +28,7 @@ const COPY = {
   },
   ru: {
     eyebrow: "Отзывы", title: "Нам доверяют атлеты",
-    subtitle: "Реальные отзывы лифтеров, бегунов и любителей, которые заправляются PEAKR.",
+    subtitle: "Реальные отзывы лифтеров, бегунов и любителей, которые заправляются EgoLab.",
     basedOn: "На основе 1 312 отзывов", allTitle: "Все отзывы", verified: "Проверен",
     channel: "Канал с отзывами",
     followTitle: "Присоединяйся", followDesc: "Подпишись — дропы, советы и розыгрыши.",

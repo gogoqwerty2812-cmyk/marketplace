@@ -159,7 +159,7 @@ export function mountChrome(activePage = "index.html") {
   header.innerHTML = `
     <div class="container site-header__inner">
       <a class="brand" href="index.html">
-        <span class="brand__mark">${esc(SITE.name.replace(/[^A-Za-zА-Яа-я0-9]/g, "").slice(0, 1) || "M")}</span>
+        <span class="brand__mark"><img src="assets/img/logo-mark.svg" alt="" width="30" height="30"></span>
         <span class="brand__name">${esc(SITE.name)}</span>
       </a>
       <nav class="site-nav" id="siteNav">${navItems(activePage)}<span class="nav-underline" id="navUnderline"></span></nav>
@@ -181,7 +181,7 @@ export function mountChrome(activePage = "index.html") {
   footer.innerHTML = `
     <div class="container site-footer__inner">
       <div>
-        <div class="brand" style="font-size:1.25rem"><span class="brand__mark" style="width:26px;height:26px;font-size:.8rem">${esc(SITE.name.slice(0, 1))}</span> ${esc(SITE.name)}</div>
+        <div class="brand" style="font-size:1.25rem"><span class="brand__mark" style="width:26px;height:26px"><img src="assets/img/logo-mark.svg" alt="" width="26" height="26"></span> ${esc(SITE.name)}</div>
         <small>${esc(t("tagline"))}</small>
       </div>
       <div style="display:flex;gap:18px;flex-wrap:wrap">
@@ -249,7 +249,7 @@ export function mountChrome(activePage = "index.html") {
   // sliding nav active indicator — one physical object that moves & springs
   const underline = document.getElementById("navUnderline");
   const activeLink = nav.querySelector(".navlink.is-active");
-  const isHorizontal = () => window.matchMedia("(min-width: 721px)").matches;
+  const isHorizontal = () => window.matchMedia("(min-width: 901px)").matches;
   const moveUnderline = (target) => {
     if (!underline) return;
     if (!target || !isHorizontal()) { underline.style.opacity = "0"; return; }

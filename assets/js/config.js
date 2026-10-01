@@ -19,7 +19,7 @@
 
 export const SITE = {
   // ---- Branding -------------------------------------------------------------
-  name: "PEAKR",
+  name: "EgoLab",
   tagline: "Curated goods. Private checkout. Crypto native.",
   metaDescription:
     "A premium marketplace with a curated catalog and fast, private crypto checkout.",

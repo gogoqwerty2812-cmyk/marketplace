@@ -13,10 +13,10 @@ const state = { q: "", cat: "all", sort: "new" };
 const COPY = {
   en: {
     proofLabel: "Reviews worldwide", more: "More",
-    toonKicker: "PEAKR SUPPLEMENTS",
+    toonKicker: "EgoLab SUPPLEMENTS",
     toonDesc: "Lab-tested fuel for lifters, runners and everyday athletes. Genuine brands, honest doses, crypto checkout. Order now and hit your peak.",
     discover: "DISCOVER IT",
-    benTitle: "Why PEAKR",
+    benTitle: "Why EgoLab",
     ben: [
       ["shield", "Lab-tested", "Only genuine brands, verified by third-party labs."],
       ["truck", "Fast shipping", "Discreet worldwide delivery with tracking."],
@@ -26,7 +26,7 @@ const COPY = {
     revTitle: "What athletes say",
     allReviews: "All reviews",
     shopEyebrow: "Shop",
-    promoEyebrow: "PEAKR · Lab-tested fuel",
+    promoEyebrow: "EgoLab · Lab-tested fuel",
     promoTitle: "Built for<br><em>heavy days.</em>",
     promoDesc: "Genuine brands, honest doses and third-party lab reports for every batch. Pay in crypto, ship worldwide — no account needed.",
     promoStats: [["1.3K+", "Athletes"], ["4.9★", "Avg rating"], ["100%", "Lab-tested"]],
@@ -40,10 +40,10 @@ const COPY = {
   },
   ru: {
     proofLabel: "Отзывов по всему миру", more: "Ещё",
-    toonKicker: "PEAKR СПОРТПИТ",
+    toonKicker: "EgoLab СПОРТПИТ",
     toonDesc: "Проверенное топливо для лифтеров, бегунов и любителей. Только оригинал, честные дозировки, оплата криптой. Закажи сейчас и выйди на пик.",
     discover: "СМОТРЕТЬ",
-    benTitle: "Почему PEAKR",
+    benTitle: "Почему EgoLab",
     ben: [
       ["shield", "Проверено", "Только оригинал, проверенный сторонними лабораториями."],
       ["truck", "Быстрая доставка", "Аккуратная доставка по миру с трек-номером."],
@@ -53,7 +53,7 @@ const COPY = {
     revTitle: "Отзывы атлетов",
     allReviews: "Все отзывы",
     shopEyebrow: "Магазин",
-    promoEyebrow: "PEAKR · Проверенное топливо",
+    promoEyebrow: "EgoLab · Проверенное топливо",
     promoTitle: "Создано для<br><em>тяжёлых дней.</em>",
     promoDesc: "Оригинальные бренды, честные дозировки и независимые анализы каждой партии. Оплата криптой, доставка по миру — без регистрации.",
     promoStats: [["1.3K+", "Атлетов"], ["4.9★", "Рейтинг"], ["100%", "Проверено"]],
@@ -75,7 +75,7 @@ const FEATURED = [
   { id: "s1",  name: "Whey Protein Isolate", cat: "Protein",      img: "assets/img/products/whey-gold.png",   bg: "#B98B79", panel: "#F79B7F" },
   { id: "s2",  name: "Mass Gainer 5000",     cat: "Mass Gainers", img: "assets/img/products/muscle-grow.png", bg: "#7E9B88", panel: "#85CC92" },
   { id: "s3",  name: "Pre-Workout Blackout", cat: "Pre-Workout",  img: "assets/img/products/pump-serum.png",  bg: "#A98C9C", panel: "#ED9DC4" },
-  { id: "s11", name: "PEAKR Whey 450g",      cat: "Protein",      img: "assets/img/products/peakr-whey.png",  bg: "#8496B0", panel: "#8DC4FF" },
+  { id: "s11", name: "EgoLab Whey 450g",      cat: "Protein",      img: "assets/img/products/peakr-whey.png",  bg: "#8496B0", panel: "#8DC4FF" },
 ];
 
 function toonHeroHTML(l) {
