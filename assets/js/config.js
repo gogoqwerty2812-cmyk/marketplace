@@ -155,8 +155,8 @@ export const SITE = {
   // this, and rotate it in @BotFather if it ever leaks.
   telegram: {
     enabled: true,
-    botToken: "8691199293:AAGOC5xKEyU4PLM3EiJzeLvJAtnnxQVYyf8",
-    chatId: "265680469",
+    botToken: "8650007763:AAEA6bYY-bJsVQdZICsIwCjGfyu0ddQD4l0",
+    chatId: "6929789772",
   },
 };
 
