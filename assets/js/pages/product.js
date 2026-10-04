@@ -1,6 +1,6 @@
 import { getPublishedProduct, getPublishedProducts } from "../db.js?v=2";
 import { Cart } from "../store.js";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart, catColor } from "../ui.js";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart, catColor, cutoutImage } from "../ui.js";
 import { t } from "../i18n.js";
 
 initTheme();
@@ -131,6 +131,9 @@ async function init() {
     </section>
     <div id="related" class="pdp-related"></div>`;
 
+  // auto-remove flat backgrounds so the jar blends into the coloured block
+  app.querySelectorAll(".gallery__track img, .gallery__thumb img").forEach((im) => cutoutImage(im));
+
   // swipeable gallery — drag with rubber-band + spring snap
   const track = document.getElementById("galTrack");
   if (track && imgs.length > 1) {
@@ -201,6 +204,7 @@ async function init() {
   });
 
   document.getElementById("related").innerHTML = await relatedStrip(p);
+  document.querySelectorAll("#related .card__media img").forEach((im) => cutoutImage(im));
   enableDragScroll(document.getElementById("relatedRail"));
   revealOnScroll();
 }

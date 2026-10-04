@@ -125,6 +125,45 @@ function langSelect() {
   </div>`;
 }
 
+// Auto-remove a flat image background in the browser (edge flood-fill), so a
+// product photo on white/black blends into the coloured carousel/cards without
+// editing content.json. Same-origin images only (canvas stays untainted).
+export function cutoutImage(img, { tol = 50 } = {}) {
+  if (!img || img.dataset.cut) return;
+  const run = () => {
+    if (img.dataset.cut) return;
+    img.dataset.cut = "1";
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w || !h) return;
+    try {
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, w, h);
+      const px = data.data;
+      const cs = [0, (w - 1) * 4, (h - 1) * w * 4, (w * h - 1) * 4];
+      let r = 0, g = 0, b = 0, a = 0;
+      for (const o of cs) { r += px[o]; g += px[o + 1]; b += px[o + 2]; a += px[o + 3]; }
+      r /= 4; g /= 4; b /= 4; a /= 4;
+      if (a < 12) return; // background already transparent → leave as is
+      const tol2 = tol * tol, N = w * h, seen = new Uint8Array(N), st = [];
+      const push = (x, y) => {
+        if (x < 0 || y < 0 || x >= w || y >= h) return;
+        const i = y * w + x; if (seen[i]) return;
+        const o = i * 4, dr = px[o] - r, dg = px[o + 1] - g, db = px[o + 2] - b;
+        if (dr * dr + dg * dg + db * db <= tol2) { seen[i] = 1; st.push(i); }
+      };
+      for (let x = 0; x < w; x++) { push(x, 0); push(x, h - 1); }
+      for (let y = 0; y < h; y++) { push(0, y); push(w - 1, y); }
+      while (st.length) { const i = st.pop(); px[i * 4 + 3] = 0; const x = i % w, y = (i / w) | 0; push(x + 1, y); push(x - 1, y); push(x, y + 1); push(x, y - 1); }
+      ctx.putImageData(data, 0, 0);
+      img.src = c.toDataURL("image/png");
+    } catch {}
+  };
+  if (img.complete && img.naturalWidth) run();
+  else img.addEventListener("load", run, { once: true });
+}
+
 // Calm colour for a category — from config, or a deterministic muted tone for
 // custom categories the seller adds in the admin.
 export function catColor(name) {

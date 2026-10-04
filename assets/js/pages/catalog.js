@@ -1,7 +1,7 @@
 import { SITE } from "../config.js?v=2";
 import { getPublishedProducts, getPublishedSettings, getPublishedReviews } from "../db.js?v=2";
 import { Cart } from "../store.js";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor } from "../ui.js";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor, cutoutImage } from "../ui.js";
 import { t, getLang } from "../i18n.js";
 
 initTheme();
@@ -123,6 +123,7 @@ function initToon() {
   const discover = document.getElementById("toonDiscover");
   const dots = [...document.querySelectorAll("#toonDots .toon__dot")];
   const items = [...car.querySelectorAll(".toon__item")];
+  items.forEach((el) => cutoutImage(el.querySelector("img")));
   const N = items.length;
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const DUR = 820;
@@ -300,6 +301,7 @@ function apply() {
   }
   grid.className = "grid-products";
   grid.innerHTML = list.map(card).join("");
+  grid.querySelectorAll(".card__media img").forEach((im) => cutoutImage(im));
   revealOnScroll();
 }
 
