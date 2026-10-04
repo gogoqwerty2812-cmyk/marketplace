@@ -404,8 +404,13 @@ async function init() {
     const el = document.getElementById("cats");
     if (!el) return;
     let down = false, moved = false, startX = 0, startLeft = 0;
-    el.addEventListener("pointerdown", (e) => { if (e.pointerType === "touch") return; down = true; moved = false; startX = e.clientX; startLeft = el.scrollLeft; el.classList.add("dragging"); });
-    el.addEventListener("pointermove", (e) => { if (!down) return; const dx = e.clientX - startX; if (Math.abs(dx) > 4) moved = true; el.scrollLeft = startLeft - dx; });
+    el.addEventListener("pointerdown", (e) => { if (e.pointerType === "touch") return; down = true; moved = false; startX = e.clientX; startLeft = el.scrollLeft; });
+    el.addEventListener("pointermove", (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 4) { moved = true; el.classList.add("dragging"); } // only a real drag disables chip clicks
+      if (moved) el.scrollLeft = startLeft - dx;
+    });
     const up = () => { down = false; el.classList.remove("dragging"); };
     el.addEventListener("pointerup", up);
     el.addEventListener("pointerleave", up);
