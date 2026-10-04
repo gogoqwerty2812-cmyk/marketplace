@@ -1,7 +1,7 @@
 import { SITE } from "../config.js?v=2";
 import { getPublishedProducts, getPublishedSettings, getPublishedReviews } from "../db.js?v=2";
 import { Cart } from "../store.js";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor, sampleCornerColor } from "../ui.js";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor, sampleCornerColor, cutoutImage } from "../ui.js";
 import { t, getLang } from "../i18n.js";
 
 initTheme();
@@ -243,10 +243,14 @@ function initToon() {
   dots.forEach((d) => d.addEventListener("click", play));
 
   render();
-  // match the carousel background to each product photo's own background colour
+  // carousel: paint the section with the photo's own background colour AND knock
+  // that flat background out of the image, so the giant word shows through the
+  // transparent area instead of being covered by a rectangle.
   items.forEach((el, i) => {
     const im = el.querySelector("img");
-    if (im) sampleCornerColor(im, (col) => { el.dataset.bg = col; im.style.filter = "none"; if (i === activeIndex) section.style.backgroundColor = col; });
+    if (!im) return;
+    sampleCornerColor(im, (col) => { el.dataset.bg = col; if (i === activeIndex) section.style.backgroundColor = col; });
+    cutoutImage(im);
   });
   play();
 }
