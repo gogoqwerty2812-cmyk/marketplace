@@ -164,6 +164,29 @@ export function cutoutImage(img, { tol = 50 } = {}) {
   else img.addEventListener("load", run, { once: true });
 }
 
+// Sample a product photo's own (flat) background colour from its corners, so the
+// site/card/carousel background can be set to match it — no seam. Same-origin
+// images only. Skips images whose corners are transparent (cut-outs).
+export function sampleCornerColor(img, cb) {
+  if (!img) return;
+  const run = () => {
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (!w || !h) return;
+    try {
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      const pts = [[2, 2], [w - 3, 2], [2, h - 3], [w - 3, h - 3]];
+      let r = 0, g = 0, b = 0, a = 0;
+      for (const [x, y] of pts) { const d = ctx.getImageData(x, y, 1, 1).data; r += d[0]; g += d[1]; b += d[2]; a += d[3]; }
+      a /= 4; if (a < 12) return; // transparent corners → nothing to match
+      cb(`rgb(${Math.round(r / 4)}, ${Math.round(g / 4)}, ${Math.round(b / 4)})`);
+    } catch {}
+  };
+  if (img.complete && img.naturalWidth) run();
+  else img.addEventListener("load", run, { once: true });
+}
+
 // Calm colour for a category — from config, or a deterministic muted tone for
 // custom categories the seller adds in the admin.
 export function catColor(name) {

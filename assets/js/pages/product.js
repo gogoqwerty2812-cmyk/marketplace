@@ -1,6 +1,6 @@
 import { getPublishedProduct, getPublishedProducts } from "../db.js?v=2";
 import { Cart } from "../store.js";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart, catColor, cutoutImage } from "../ui.js";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, qs, flyToCart, catColor, sampleCornerColor } from "../ui.js";
 import { t } from "../i18n.js";
 
 initTheme();
@@ -131,8 +131,13 @@ async function init() {
     </section>
     <div id="related" class="pdp-related"></div>`;
 
-  // auto-remove flat backgrounds so the jar blends into the coloured block
-  app.querySelectorAll(".gallery__track img, .gallery__thumb img").forEach((im) => cutoutImage(im));
+  // match the colour block to the product photo's own background colour
+  const heroImg = app.querySelector(".gallery__track img, .gallery__main img");
+  const heroEl = app.querySelector(".pdp-hero");
+  if (heroImg && heroEl) sampleCornerColor(heroImg, (col) => {
+    heroEl.style.background = col;
+    app.querySelectorAll(".gallery__track img, .gallery__main img").forEach((i2) => { i2.style.filter = "none"; });
+  });
 
   // swipeable gallery — drag with rubber-band + spring snap
   const track = document.getElementById("galTrack");
@@ -204,7 +209,10 @@ async function init() {
   });
 
   document.getElementById("related").innerHTML = await relatedStrip(p);
-  document.querySelectorAll("#related .card__media img").forEach((im) => cutoutImage(im));
+  document.querySelectorAll("#related .card__media").forEach((media) => {
+    const im = media.querySelector("img");
+    if (im) sampleCornerColor(im, (col) => { media.style.background = col; im.style.filter = "none"; });
+  });
   enableDragScroll(document.getElementById("relatedRail"));
   revealOnScroll();
 }
