@@ -1,5 +1,5 @@
 import { SITE } from "../config.js?v=2";
-import { getPublishedProducts, getPublishedSettings } from "../db.js?v=2";
+import { getPublishedProducts, getPublishedSettings, getPublishedReviews } from "../db.js?v=2";
 import { Cart } from "../store.js";
 import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor } from "../ui.js";
 import { t, getLang } from "../i18n.js";
@@ -326,6 +326,14 @@ async function init() {
   const present = new Set(ALL.map((p) => p.category).filter(Boolean));
   const cats = ["all", ...managed.filter((c) => present.has(c)), ...[...present].filter((c) => !managed.includes(c))];
 
+  // real reviews (fixed text — do NOT change with the site language)
+  let reviewsList = [];
+  try { reviewsList = await getPublishedReviews(); } catch {}
+  const homeRevs = reviewsList.length
+    ? reviewsList.slice(0, 3).map((r) => ({ text: r.text, who: `${r.name}${r.role ? " · " + r.role : ""}`, rating: r.rating || 5 }))
+    : l.rev.map(([txt, name]) => ({ text: txt, who: name, rating: 5 }));
+  const homeReviewsHTML = homeRevs.map((r) => `<div class="review"><div class="review__stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</div><p class="review__text">${esc(r.text)}</p><div class="review__name">${esc(r.who)}</div></div>`).join("");
+
   app.innerHTML = `
     ${toonHeroHTML(l)}
 
@@ -375,9 +383,7 @@ async function init() {
 
     <section class="section reveal" style="padding-top:0">
       <div class="section-head"><h2>${l.revTitle}</h2><span class="rule"></span><a class="section-head__link" href="reviews.html">${l.allReviews} ${icon("arrowRight", 14)}</a></div>
-      <div class="reviews">
-        ${l.rev.map(([txt, name]) => `<div class="review"><div class="review__stars">★★★★★</div><p class="review__text">${txt}</p><div class="review__name">${name}</div></div>`).join("")}
-      </div>
+      <div class="reviews">${homeReviewsHTML}</div>
     </section>`;
 
   initToon();
