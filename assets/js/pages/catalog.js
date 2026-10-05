@@ -167,21 +167,32 @@ function initToon() {
 
   // Scale the giant background word so the WHOLE name fits the viewport on any
   // device — long names like "CAFFEINE POUCHES" were overflowing and getting
-  // cut. The ghost is a full-width flex box, so its scrollWidth equals the
-  // viewport (not the text); measure the real text width with a canvas instead.
+  // cut. The ghost is a full-width flex box, so its own scrollWidth equals the
+  // viewport (not the text), and a canvas misses faux-bold + letter-spacing.
+  // So measure the TRUE rendered width with an off-screen clone that copies the
+  // exact font, weight and letter-spacing, then scale from that ratio.
+  const BASE = 200;
+  function measurer() {
+    if (fitGhost._m) return fitGhost._m;
+    const s = document.createElement("span");
+    s.style.cssText =
+      "position:absolute;left:-99999px;top:0;visibility:hidden;white-space:nowrap;" +
+      "font-family:'Anton','Oswald','Arial Narrow',sans-serif;font-weight:900;" +
+      "letter-spacing:-0.02em;text-transform:uppercase;font-size:" + BASE + "px;";
+    document.body.appendChild(s);
+    return (fitGhost._m = s);
+  }
   function fitGhost() {
     if (!ghost) return;
     const vw = section.getBoundingClientRect().width || window.innerWidth || document.documentElement.clientWidth;
     const text = ghost.textContent || "";
     if (!vw || !text) return;
-    const cv = fitGhost._cv || (fitGhost._cv = document.createElement("canvas"));
-    const cx = cv.getContext("2d");
-    const base = 100;
-    cx.font = `900 ${base}px 'Anton', sans-serif`;
-    const w = cx.measureText(text).width;
+    const m = measurer();
+    m.textContent = text;
+    const w = m.getBoundingClientRect().width;
     if (!w) return;
-    let size = base * (vw * 0.92 / w);        // fit to 92% of the width
-    size = Math.max(22, Math.min(size, 380)); // sensible bounds
+    let size = BASE * (vw * 0.92 / w);        // fit to 92% of the width
+    size = Math.max(22, Math.min(size, 460)); // never cut; just cap very short words
     ghost.style.whiteSpace = "nowrap";
     ghost.style.fontSize = size + "px";
   }
