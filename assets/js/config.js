@@ -131,10 +131,8 @@ export const SITE = {
 
   // ---- Support page contact channels (edit these) --------------------------
   supportChannels: [
-    { id: "email",    name: "Email",        value: "support@peakr.example", href: "mailto:support@peakr.example", icon: "mail" },
-    { id: "telegram", name: "Telegram",     value: "@peakr_support",        href: "https://t.me/peakr_support",   icon: "send" },
-    { id: "whatsapp", name: "WhatsApp",     value: "+1 (555) 010-2030",     href: "https://wa.me/15550102030",    icon: "phone" },
-    { id: "phone",    name: "Phone (US/EU)", value: "+1 (555) 010-2030",    href: "tel:+15550102030",             icon: "phone" },
+    { id: "email",    name: "Email",    value: "egolab.support@proton.me", href: "mailto:egolab.support@proton.me", icon: "mail" },
+    { id: "telegram", name: "Telegram", value: "@egolab_shop",             href: "https://t.me/egolab_shop",        icon: "send" },
   ],
 
   // ---- Social media (edit links; shown in footer + on the Reviews page) ----
