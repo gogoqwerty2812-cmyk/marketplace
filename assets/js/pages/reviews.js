@@ -87,7 +87,7 @@ async function init() {
       <div class="rating-card rating-card--wide">
         <div class="rating-top">
           <div class="rating-big" id="ratingBig">4.9</div>
-          <div><div class="rating-stars">★★★★★</div><div class="rating-count">${esc(x.basedOn)}</div></div>
+          <div><div class="rating-stars">★★★★★</div></div>
         </div>
         <div class="rbars">
           ${DIST.map(([star, pct]) => `<div class="rbar"><span>${star}★</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span>${pct}%</span></div>`).join("")}
