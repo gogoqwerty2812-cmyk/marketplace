@@ -60,6 +60,18 @@ export const money = (n) =>
 export const esc = (s = "") =>
   String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// Sanitize a URL used in an href. Blocks script-capable schemes
+// (javascript:, data:, vbscript:, file:) even when obfuscated with embedded
+// whitespace/control chars; http/https/mailto/tel and relative URLs pass.
+// Always wrap the result in esc() too when placing it into an attribute.
+export const safeUrl = (u = "") => {
+  const raw = String(u).trim();
+  if (!raw) return "#";
+  const stripped = raw.replace(/[\x00-\x20]+/g, "").toLowerCase();
+  if (/^(javascript|data|vbscript|file):/.test(stripped)) return "#";
+  return raw;
+};
+
 export const placeholder = () => `<div class="img-ph">${icon("box", 34)}</div>`;
 
 // ---- Theme -----------------------------------------------------------------
@@ -201,7 +213,7 @@ export function catColor(name) {
 export function pageHero({ eyebrow = "", title = "", subtitle = "", color = "#94908c", image = "" } = {}) {
   return `
   <section class="page-hero${image ? " page-hero--photo" : ""}" style="background:${color}">
-    ${image ? `<img class="page-hero__photo" src="${image}" alt="" aria-hidden="true" data-parallax="0.08">` : ""}
+    ${image ? `<img class="page-hero__photo" src="${esc(image)}" alt="" aria-hidden="true" data-parallax="0.08">` : ""}
     <div class="page-hero__grain"></div>
     <div class="page-hero__inner">
       ${eyebrow ? `<span class="page-hero__eyebrow">${eyebrow}</span>` : ""}
@@ -266,7 +278,7 @@ export function mountChrome(activePage = "index.html") {
         <a class="navlink" href="admin.html">${t("nav_admin")}</a>
       </div>
       <div class="socials" id="footerSocials">
-        ${(SITE.socials || []).map((sc) => `<a class="social" href="${esc(sc.href)}" target="_blank" rel="noopener" aria-label="${esc(sc.name)}">${icon(sc.icon, 18)}</a>`).join("")}
+        ${(SITE.socials || []).map((sc) => `<a class="social" href="${esc(safeUrl(sc.href))}" target="_blank" rel="noopener noreferrer" aria-label="${esc(sc.name)}">${icon(sc.icon, 18)}</a>`).join("")}
       </div>
       <small>© ${year} ${esc(SITE.name)}.</small>
     </div>`;
@@ -276,7 +288,7 @@ export function mountChrome(activePage = "index.html") {
   getPublishedSettings().then((s) => {
     const box = document.getElementById("footerSocials");
     if (box && s && Array.isArray(s.socials) && s.socials.length) {
-      box.innerHTML = s.socials.map((sc) => `<a class="social" href="${esc(sc.href)}" target="_blank" rel="noopener" aria-label="${esc(sc.name || "")}">${icon(sc.icon, 18)}</a>`).join("");
+      box.innerHTML = s.socials.map((sc) => `<a class="social" href="${esc(safeUrl(sc.href))}" target="_blank" rel="noopener noreferrer" aria-label="${esc(sc.name || "")}">${icon(sc.icon, 18)}</a>`).join("");
     }
   }).catch(() => {});
 

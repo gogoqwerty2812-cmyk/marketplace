@@ -22,7 +22,7 @@ function summaryHTML() {
       <div class="stack" style="--space-4:12px">
         ${items.map((i) => `
           <div style="display:flex;gap:12px;align-items:center">
-            <div class="cart-item__img" style="width:54px;height:54px;flex:0 0 auto">${i.image ? `<img src="${i.image}" alt="">` : ""}</div>
+            <div class="cart-item__img" style="width:54px;height:54px;flex:0 0 auto">${i.image ? `<img src="${esc(i.image)}" alt="">` : ""}</div>
             <div style="flex:1;min-width:0">
               <div style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(i.name)}</div>
               <div class="muted" style="font-size:.82rem">${i.qty} × ${money(i.price)}</div>

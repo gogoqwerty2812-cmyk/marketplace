@@ -50,7 +50,7 @@ async function relatedStrip(current) {
       <div class="rail" id="relatedRail">
         ${pool.map((p) => `
           <a class="card" href="product.html?id=${p.id}" style="--cat:${catColor(p.category)}">
-            <div class="card__media">${p.images?.[0] ? `<img src="${p.images[0]}" alt="${esc(p.name)}" loading="lazy">` : placeholder()}</div>
+            <div class="card__media">${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="${esc(p.name)}" loading="lazy">` : placeholder()}</div>
             <div class="card__body">
               <span class="card__cat">${esc(p.category)}</span>
               <span class="card__title">${esc(p.name)}</span>
@@ -86,7 +86,7 @@ async function init() {
 
   const imgs = p.images?.length ? p.images : [];
   const galleryInner = imgs.length
-    ? `<div class="gallery__track" id="galTrack">${imgs.map((src) => `<img src="${src}" alt="${esc(p.name)}" draggable="false">`).join("")}</div>${imgs.length > 1 ? `<div class="gallery__dots" id="galDots">${imgs.map((_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("")}</div>` : ""}`
+    ? `<div class="gallery__track" id="galTrack">${imgs.map((src) => `<img src="${esc(src)}" alt="${esc(p.name)}" draggable="false">`).join("")}</div>${imgs.length > 1 ? `<div class="gallery__dots" id="galDots">${imgs.map((_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("")}</div>` : ""}`
     : placeholder();
   const out = p.stock <= 0;
   let currentIndex = 0;
@@ -100,7 +100,7 @@ async function init() {
           <div>
             <div class="gallery__main" id="galMain">${galleryInner}</div>
         ${imgs.length > 1 ? `<div class="gallery__thumbs" id="thumbs">
-          ${imgs.map((src, i) => `<button class="gallery__thumb${i === 0 ? " is-active" : ""}" data-i="${i}"><img src="${src}" alt="View ${i + 1}" draggable="false"></button>`).join("")}
+          ${imgs.map((src, i) => `<button class="gallery__thumb${i === 0 ? " is-active" : ""}" data-i="${i}"><img src="${esc(src)}" alt="View ${i + 1}" draggable="false"></button>`).join("")}
         </div>` : ""}
       </div>
       <div class="stack">

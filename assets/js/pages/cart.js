@@ -6,7 +6,7 @@ import { t } from "../i18n.js?v=3";
 initTheme();
 
 function line(i) {
-  const img = i.image ? `<img src="${i.image}" alt="${esc(i.name)}">` : placeholder();
+  const img = i.image ? `<img src="${esc(i.image)}" alt="${esc(i.name)}">` : placeholder();
   return `
   <div class="cart-item" data-id="${i.id}">
     <a class="cart-item__img" href="product.html?id=${i.id}">${img}</a>

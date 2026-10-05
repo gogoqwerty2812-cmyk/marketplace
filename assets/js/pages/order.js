@@ -1,6 +1,6 @@
 import { getOrder } from "../db.js?v=3";
 import { SITE } from "../config.js?v=3";
-import { icon, money, esc, initTheme, mountChrome, qs, copyText, toast } from "../ui.js?v=3";
+import { icon, money, esc, safeUrl, initTheme, mountChrome, qs, copyText, toast } from "../ui.js?v=3";
 import { t } from "../i18n.js?v=3";
 
 initTheme();
@@ -24,7 +24,7 @@ function contactsRows(customer) {
     const v = list[m.id];
     const href = contactHref(m.id, v);
     const val = href
-      ? `<a href="${esc(href)}" target="_blank" rel="noopener" style="color:var(--accent-ink)">${esc(v)}</a>`
+      ? `<a href="${esc(safeUrl(href))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-ink)">${esc(v)}</a>`
       : esc(v);
     return `<dt>${esc(m.label)}</dt><dd>${val}</dd>`;
   }).join("");
@@ -68,7 +68,7 @@ async function init() {
           <div class="stack" style="--space-4:12px">
             ${o.items.map((i) => `
               <div style="display:flex;gap:12px;align-items:center">
-                <div class="cart-item__img" style="width:54px;height:54px;flex:0 0 auto">${i.image ? `<img src="${i.image}" alt="">` : ""}</div>
+                <div class="cart-item__img" style="width:54px;height:54px;flex:0 0 auto">${i.image ? `<img src="${esc(i.image)}" alt="">` : ""}</div>
                 <div style="flex:1"><div style="font-weight:600">${esc(i.name)}</div><div class="muted" style="font-size:.85rem">${i.qty} × ${money(i.price)}</div></div>
                 <strong>${money(i.qty * i.price)}</strong>
               </div>`).join("")}

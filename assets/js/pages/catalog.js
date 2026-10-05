@@ -84,7 +84,7 @@ function buildFeatured(products) {
 function toonHeroHTML(l) {
   const items = FEATURED.map((f, i) => `
     <div class="toon__item" data-i="${i}">
-      <img src="${f.img}" alt="${esc(f.name)}" draggable="false">
+      <img src="${esc(f.img)}" alt="${esc(f.name)}" draggable="false">
     </div>`).join("");
   return `
   <section class="toon" id="toon" style="background-color:${FEATURED[0].bg}">
@@ -299,7 +299,7 @@ function stockBadge(p) {
 
 function card(p) {
   const img = p.images?.[0]
-    ? `<img src="${p.images[0]}" alt="${esc(p.name)}" loading="lazy">`
+    ? `<img src="${esc(p.images[0])}" alt="${esc(p.name)}" loading="lazy">`
     : placeholder();
   const out = p.stock <= 0;
   return `
@@ -364,7 +364,8 @@ async function init() {
   try {
     ALL = await getPublishedProducts();
   } catch (err) {
-    app.innerHTML = `<div class="empty" style="padding-top:120px">${icon("box", 44)}<h3>${t("nothing_found")}</h3><p style="max-width:38ch;margin-inline:auto">${esc(err.message || String(err))}</p><button class="btn btn--primary" style="margin-top:16px" onclick="location.reload()">${icon("arrowRight", 16)} ${t("start_shopping")}</button></div>`;
+    app.innerHTML = `<div class="empty" style="padding-top:120px">${icon("box", 44)}<h3>${t("nothing_found")}</h3><p style="max-width:38ch;margin-inline:auto">${esc(err.message || String(err))}</p><button class="btn btn--primary" id="reloadBtn" style="margin-top:16px">${icon("arrowRight", 16)} ${t("start_shopping")}</button></div>`;
+    document.getElementById("reloadBtn")?.addEventListener("click", () => location.reload());
     return;
   }
   buildFeatured(ALL);

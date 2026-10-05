@@ -1,6 +1,6 @@
 import { SITE } from "../config.js?v=3";
 import { createTicket } from "../db.js?v=3";
-import { icon, esc, initTheme, mountChrome, toast, pageHero } from "../ui.js?v=3";
+import { icon, esc, safeUrl, initTheme, mountChrome, toast, pageHero } from "../ui.js?v=3";
 import { t } from "../i18n.js?v=3";
 import { sendTicketNotification } from "../notify.js?v=3";
 
@@ -8,7 +8,7 @@ initTheme();
 
 function channelCard(c) {
   return `
-    <a class="channel" href="${esc(c.href)}" target="_blank" rel="noopener">
+    <a class="channel" href="${esc(safeUrl(c.href))}" target="_blank" rel="noopener noreferrer">
       <span class="channel__ic">${icon(c.icon, 18)}</span>
       <span class="channel__body">
         <span class="channel__name">${esc(c.name)}</span>

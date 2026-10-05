@@ -179,8 +179,10 @@ function renderDashboard() {
 //  PRODUCTS TAB
 // ---------------------------------------------------------------------------
 function dbErrorHTML(err) {
-  return `<div class="empty">${icon("box", 44)}<h3>Couldn’t load data</h3><p style="max-width:40ch;margin-inline:auto">${esc(err.message || String(err))}</p><button class="btn btn--primary" style="margin-top:16px" onclick="location.reload()">Reload</button></div>`;
+  return `<div class="empty">${icon("box", 44)}<h3>Couldn’t load data</h3><p style="max-width:40ch;margin-inline:auto">${esc(err.message || String(err))}</p><button class="btn btn--primary js-reload" style="margin-top:16px">Reload</button></div>`;
 }
+// Delegated handler (no inline onclick, so a strict CSP can forbid inline JS).
+document.addEventListener("click", (e) => { if (e.target.closest(".js-reload")) location.reload(); });
 
 async function renderProducts() {
   const panel = document.getElementById("panel");
@@ -211,7 +213,7 @@ async function renderProducts() {
         <tbody>
           ${products.map((p) => `
             <tr>
-              <td>${p.images?.[0] ? `<img class="thumb-xs" src="${p.images[0]}" alt="">` : `<div class="thumb-xs"></div>`}</td>
+              <td>${p.images?.[0] ? `<img class="thumb-xs" src="${esc(p.images[0])}" alt="">` : `<div class="thumb-xs"></div>`}</td>
               <td style="font-weight:600">${esc(p.name)}${p.subcategory ? `<br><small class="muted" style="font-weight:400">${esc(p.subcategory)}</small>` : ""}</td>
               <td><span class="badge">${esc(p.category)}</span></td>
               <td>${p.featured ? `<span class="badge badge--accent" title="On the home carousel">${icon("bolt", 12)} On</span>` : `<span class="muted">—</span>`}</td>
@@ -356,7 +358,7 @@ function openProductModal(product) {
     const wrap = document.getElementById("thumbs");
     wrap.innerHTML = editingImages.map((src, i) => `
       <div class="thumb" draggable="true" data-i="${i}">
-        <img src="${src}" alt="">
+        <img src="${esc(src)}" alt="">
         ${i === 0 ? `<span class="thumb__main">COVER</span>` : ""}
         <button type="button" class="thumb__del" data-i="${i}" aria-label="Remove">✕</button>
       </div>`).join("");
@@ -544,7 +546,7 @@ async function renderCerts() {
       <thead><tr><th></th><th>Title</th><th>Issuer / lab</th><th>Date</th><th>Category</th><th></th></tr></thead>
       <tbody>
         ${certs.map((cc) => `<tr>
-          <td>${cc.image ? `<img class="thumb-xs" src="${cc.image}" alt="">` : `<div class="thumb-xs"></div>`}</td>
+          <td>${cc.image ? `<img class="thumb-xs" src="${esc(cc.image)}" alt="">` : `<div class="thumb-xs"></div>`}</td>
           <td style="font-weight:600;max-width:280px">${esc(cc.title)}</td>
           <td>${esc(cc.issuer || "—")}</td>
           <td>${esc(cc.date || "—")}</td>
@@ -626,7 +628,7 @@ function openCertModal(cert) {
   const fileInput = document.getElementById("certFile");
   const renderThumb = () => {
     const wrap = document.getElementById("certThumb");
-    wrap.innerHTML = img ? `<div class="thumb" style="width:110px;height:140px"><img src="${img}" alt=""><button type="button" class="thumb__del" id="certDel">✕</button></div>` : "";
+    wrap.innerHTML = img ? `<div class="thumb" style="width:110px;height:140px"><img src="${esc(img)}" alt=""><button type="button" class="thumb__del" id="certDel">✕</button></div>` : "";
     const d = document.getElementById("certDel");
     if (d) d.addEventListener("click", () => { img = ""; renderThumb(); });
   };
