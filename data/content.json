@@ -315,94 +315,104 @@
   ],
   "reviews": [
     {
-      "id": "r1",
-      "name": "Max K.",
-      "role": "Powerlifter",
+      "id": "muvf129sit5c89",
+      "name": "anonymous",
+      "role": "",
       "rating": 5,
-      "text": "The pre-workout is insane — energy for the whole session and no crash. Shipping was quick too.",
+      "text": "test cyp is definately properly dosed. energy levels high, libido thru the roof and weight is stedily going up",
       "verified": true,
-      "createdAt": 1758300000000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214775488,
+      "updatedAt": 1791214775488
     },
     {
-      "id": "r2",
-      "name": "Elena R.",
-      "role": "CrossFit",
+      "id": "muveyicvjtuiqq",
+      "name": "Piotr",
+      "role": "",
       "rating": 5,
-      "text": "Legit gear, honest doses. This is my go-to for whey and creatine now.",
+      "text": "Ogień",
       "verified": true,
-      "createdAt": 1758299999000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214656367,
+      "updatedAt": 1791214656367
     },
     {
-      "id": "r3",
-      "name": "Dmitri V.",
-      "role": "Bodybuilder",
+      "id": "muvewi81aj8ueg",
+      "name": "anonymous",
+      "role": "",
       "rating": 5,
-      "text": "Paid in USDT, order was tracked and arrived sealed. Ordering again for sure.",
+      "text": "Paket stigao danas, sve lepo upakovano. Svaka čast za brzinu i profesionalnost!",
       "verified": true,
-      "createdAt": 1758299998000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214562881,
+      "updatedAt": 1791214562881
     },
     {
-      "id": "r4",
-      "name": "Sarah L.",
-      "role": "Runner",
+      "id": "muvevgfxx9ekjj",
+      "name": "David",
+      "role": "",
       "rating": 5,
-      "text": "The electrolytes saved my long runs. Fast delivery across the EU.",
+      "text": "Brutal total",
       "verified": true,
-      "createdAt": 1758299997000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214513917,
+      "updatedAt": 1791214513917
     },
     {
-      "id": "r5",
-      "name": "Marco P.",
-      "role": "Strongman",
+      "id": "muveug6t2a40jb",
+      "name": "Matteo",
+      "role": "",
       "rating": 5,
-      "text": "Mass gainer actually put size on me. The real deal, not watered down.",
+      "text": "Der Pre-Workout Booster ist echt krank haha. Fokus im Training war 10/10, absolut keine Müdigkeit.",
       "verified": true,
-      "createdAt": 1758299996000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214466933,
+      "updatedAt": 1791214466933
     },
     {
-      "id": "r6",
-      "name": "Anna S.",
-      "role": "Fitness",
-      "rating": 4,
-      "text": "Whey mixes clean with no bloat. Already reordered twice.",
+      "id": "muvety657pjw44",
+      "name": "Vladimir",
+      "role": "",
+      "rating": 5,
+      "text": "legit shop, thanks!",
       "verified": true,
-      "createdAt": 1758299995000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214443581,
+      "updatedAt": 1791214443581
     },
     {
-      "id": "r7",
-      "name": "Jake T.",
-      "role": "Cyclist",
+      "id": "muvet8mqt1xnjx",
+      "name": "anonymous",
+      "role": "",
       "rating": 5,
-      "text": "Creatine at a fair price, sealed tubs, quick support. Recommend.",
+      "text": "Все четко, отдуши",
       "verified": true,
-      "createdAt": 1758299994000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214410482,
+      "updatedAt": 1791214410482
     },
     {
-      "id": "r8",
-      "name": "Igor M.",
-      "role": "Gym rat",
+      "id": "muvesybrjh2psi",
+      "name": "anonymous",
+      "role": "",
       "rating": 5,
-      "text": "Support answered in minutes on Telegram. Whole thing was smooth.",
+      "text": "This is my third time buying here. The stanozolol works well; it doesn't dry out your ligaments if you dose it correctly. I got the tracking number right after payment.",
       "verified": true,
-      "createdAt": 1758299993000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214397127,
+      "updatedAt": 1791214397127
     },
     {
-      "id": "r9",
-      "name": "Lena K.",
-      "role": "Beginner",
+      "id": "muvervinmhhw3c",
+      "name": "Max",
+      "role": "",
       "rating": 5,
-      "text": "Easy checkout, discreet packaging, arrived on time. Will buy again.",
+      "text": "fire",
       "verified": true,
-      "createdAt": 1758299992000,
-      "updatedAt": 1791142222137
+      "createdAt": 1791214346831,
+      "updatedAt": 1791214346831
+    },
+    {
+      "id": "muverms87kuluv",
+      "name": "anonymous",
+      "role": "",
+      "rating": 5,
+      "text": "Bought Test E and Anavar last month. Delivery took like 4 days, packaging was super discreet. Gains are already showing, strength up on bench!",
+      "verified": true,
+      "createdAt": 1791214335512,
+      "updatedAt": 1791214335512
     }
   ],
   "settings": {
