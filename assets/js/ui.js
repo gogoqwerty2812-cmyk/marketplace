@@ -102,7 +102,7 @@ function navItems(active) {
   const items = [
     ["index.html", t("nav_catalog")],
     ["reviews.html", t("nav_reviews")],
-    ["certificates.html", t("nav_certs")],
+    // ["certificates.html", t("nav_certs")], // Lab reports — temporarily hidden (restore on request)
     ["support.html", t("nav_support")],
     ["cart.html", t("nav_cart")],
     ["admin.html", t("nav_admin")],
@@ -260,7 +260,7 @@ export function mountChrome(activePage = "index.html") {
       <div style="display:flex;gap:18px;flex-wrap:wrap">
         <a class="navlink" href="index.html">${t("nav_catalog")}</a>
         <a class="navlink" href="reviews.html">${t("nav_reviews")}</a>
-        <a class="navlink" href="certificates.html">${t("nav_certs")}</a>
+        <!-- <a class="navlink" href="certificates.html">${t("nav_certs")}</a> --> <!-- Lab reports — temporarily hidden (restore on request) -->
         <a class="navlink" href="support.html">${t("nav_support")}</a>
         <a class="navlink" href="cart.html">${t("nav_cart")}</a>
         <a class="navlink" href="admin.html">${t("nav_admin")}</a>

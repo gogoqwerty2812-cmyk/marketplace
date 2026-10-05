@@ -389,7 +389,8 @@ async function init() {
           <div class="promo__stats">${l.promoStats.map(([n, s]) => `<div class="promo__stat"><b>${n}</b><span>${s}</span></div>`).join("")}</div>
           <div class="promo__actions">
             <a class="btn btn--light btn--lg" href="#catalog">${icon("bag", 18)} ${l.promoCta1}</a>
-            <a class="btn btn--outline-light btn--lg" href="certificates.html">${icon("shield", 18)} ${l.promoCta2}</a>
+            <!-- Lab reports CTA temporarily hidden (restore with the certificates tab) -->
+            <!-- <a class="btn btn--outline-light btn--lg" href="certificates.html">${icon("shield", 18)} ${l.promoCta2}</a> -->
           </div>
         </div>
       </div>
