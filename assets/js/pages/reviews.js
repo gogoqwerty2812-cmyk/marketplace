@@ -77,7 +77,9 @@ async function init() {
   const socials = (settings.socials && settings.socials.length) ? settings.socials : (SITE.socials || []);
   const channel = settings.reviewsChannelUrl;
 
-  const channelBtn = channel
+  // Reviews-channel button temporarily hidden (restore on request):
+  // remove the `false &&` below to show it again when a channel URL is set.
+  const channelBtn = (false && channel)
     ? `<a class="btn btn--primary" href="${esc(channel)}" target="_blank" rel="noopener">${icon("send", 16)} ${esc(x.channel)}</a>`
     : "";
 
