@@ -5,6 +5,14 @@ import { icon, money, esc, placeholder, initTheme, mountChrome, toast } from "..
 initTheme();
 
 const SESSION_KEY = "mkt_admin_ok";
+
+// The password is never stored in the repo — only its SHA-256 hash is in
+// config.js. Hash the typed password the same way and compare the hashes.
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 let tab = "products";
 let editingImages = []; // data URLs for the product form
 let knownCats = [];     // categories offered in the product form
@@ -76,10 +84,12 @@ function renderLogin() {
         </form>
       </div>
     </div>`;
-  document.getElementById("loginForm").addEventListener("submit", (e) => {
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const pw = document.getElementById("pw").value;
-    if (pw === SITE.adminPassword) {
+    let ok = false;
+    try { ok = (await sha256Hex(pw)) === SITE.adminPasswordHash; } catch { ok = false; }
+    if (ok) {
       sessionStorage.setItem(SESSION_KEY, "1");
       renderDashboard();
     } else {

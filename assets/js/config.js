@@ -12,8 +12,13 @@
 //     These are shown to the buyer (with a QR code) at checkout.
 //
 //  3. ADMIN PASSWORD
-//     Change SITE.adminPassword. NOTE: this is a lightweight, client-side gate
-//     for a local/dev tool only — it is NOT real security.
+//     Stored as a SHA-256 hash in SITE.adminPasswordHash (never in plaintext).
+//     Change it with:  python tools/hash-password.py "newPassword"
+//     NOTE: this is a lightweight, client-side gate — it is NOT real security.
+//
+//  4. PROMO CODES
+//     Edit PROMO_CODES (near the bottom). These are code-only and cannot be
+//     changed from the admin panel.
 //
 // =============================================================================
 
@@ -85,7 +90,14 @@ export const SITE = {
   ],
 
   // ---- Admin ----------------------------------------------------------------
-  adminPassword: "Igor281210@",
+  // The password is stored ONLY as a SHA-256 hash, so the plaintext never
+  // appears in the repo (the old Telegram token was scraped from here the same
+  // way). This is still just a light client-side gate — anyone who reads the
+  // code can see the hash, but cannot reverse it to the password.
+  // To change it: run  python tools/hash-password.py "newPassword"  and paste
+  // the printed hash below.
+  adminPasswordHash:
+    "d8beecf216e41263269339ddb581cf218067d767b2adaf1abcfb92b21bf77db0",
 
   // ---- Catalog categories (used by the admin product form + catalog filter) -
   categories: [
@@ -213,6 +225,28 @@ export const COUNTRIES = [
   ["PL", "Poland"],
   ["RS", "Serbia"],
 ];
+
+// -----------------------------------------------------------------------------
+//  Promo codes — defined HERE in code only. They are NOT editable from the
+//  admin panel. Key = the code the buyer types (matched case-insensitively,
+//  spaces ignored); value = percent discount off the cart subtotal.
+// -----------------------------------------------------------------------------
+export const PROMO_CODES = Object.freeze({
+  all5: 5,
+  wow10: 10,
+  megaa15: 15,
+  ego20: 20,
+  testosterone25: 25,
+});
+
+// -----------------------------------------------------------------------------
+//  Shipping — a flat fee below the free-shipping threshold, free at/above it.
+//  Amounts are in the store currency (USD).
+// -----------------------------------------------------------------------------
+export const SHIPPING = Object.freeze({
+  fee: 7,
+  freeThreshold: 99,
+});
 
 // -----------------------------------------------------------------------------
 //  Order status vocabulary (used by admin + confirmation page).

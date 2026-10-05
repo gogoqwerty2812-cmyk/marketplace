@@ -73,6 +73,9 @@ async function init() {
                 <strong>${money(i.qty * i.price)}</strong>
               </div>`).join("")}
           </div>
+          ${o.subtotal != null ? `<div class="summary__row" style="margin-top:12px"><span>${t("subtotal")}</span><span>${money(o.subtotal)}</span></div>` : ""}
+          ${o.discount ? `<div class="summary__row" style="color:var(--accent)"><span>${t("discount")}${o.promoCode ? ` · ${esc(String(o.promoCode))}` : ""}</span><span>−${money(o.discount)}</span></div>` : ""}
+          ${o.shipping != null ? `<div class="summary__row"><span>${t("shipping")}</span><span>${o.shipping === 0 ? t("free") : money(o.shipping)}</span></div>` : ""}
           <div class="summary__total"><span>${t("total")}</span><b>${money(o.total)}</b></div>
         </section>
 

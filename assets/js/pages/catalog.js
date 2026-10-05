@@ -165,6 +165,27 @@ function initToon() {
     return "hidden";
   }
 
+  // Scale the giant background word so the WHOLE name fits the viewport on any
+  // device — long names like "CAFFEINE POUCHES" were overflowing and getting
+  // cut. The ghost is a full-width flex box, so its scrollWidth equals the
+  // viewport (not the text); measure the real text width with a canvas instead.
+  function fitGhost() {
+    if (!ghost) return;
+    const vw = section.getBoundingClientRect().width || window.innerWidth || document.documentElement.clientWidth;
+    const text = ghost.textContent || "";
+    if (!vw || !text) return;
+    const cv = fitGhost._cv || (fitGhost._cv = document.createElement("canvas"));
+    const cx = cv.getContext("2d");
+    const base = 100;
+    cx.font = `900 ${base}px 'Anton', sans-serif`;
+    const w = cx.measureText(text).width;
+    if (!w) return;
+    let size = base * (vw * 0.92 / w);        // fit to 92% of the width
+    size = Math.max(22, Math.min(size, 380)); // sensible bounds
+    ghost.style.whiteSpace = "nowrap";
+    ghost.style.fontSize = size + "px";
+  }
+
   function render() {
     items.forEach((el, i) => {
       const role = roleOf(i);
@@ -174,7 +195,7 @@ function initToon() {
     });
     const f = FEATURED[activeIndex];
     section.style.backgroundColor = items[activeIndex]?.dataset.bg || f.bg;
-    if (ghost) ghost.textContent = f.cat.toUpperCase();
+    if (ghost) { ghost.textContent = f.cat.toUpperCase(); fitGhost(); }
     if (nameEl) nameEl.textContent = f.name;
     if (discover) discover.href = `product.html?id=${f.id}`;
     dots.forEach((d, i) => d.classList.toggle("on", i === activeIndex));
@@ -215,7 +236,11 @@ function initToon() {
   window.addEventListener("resize", () => {
     const m = window.innerWidth < 640;
     if (m !== isMobile) { isMobile = m; render(); }
+    else fitGhost();
   });
+  // re-fit once the display font has actually loaded (measuring with the
+  // fallback font gives the wrong width)
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitGhost);
 
   // pointer parallax — the jars drift gently toward the cursor for depth
   if (!reduce) {

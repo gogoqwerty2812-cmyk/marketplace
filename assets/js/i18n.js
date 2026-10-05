@@ -81,6 +81,10 @@ export const STRINGS = {
     sup_send: "Send message", sup_success: "Thanks! Your message was received — we’ll get back to you soon.",
     sup_channels_title: "Reach us directly", sup_channels_desc: "We usually reply within a few hours.", sup_response: "Avg. response under 4h",
     required_word: "required",
+    subtotal: "Subtotal", free: "Free", discount: "Discount",
+    promo_code: "Promo code", promo_ph: "Promo code", apply: "Apply",
+    promo_applied: "Promo applied: −{n}%", promo_invalid: "Invalid promo code", promo_removed: "Promo code removed",
+    free_ship_hint: "Free shipping on orders over {n}",
   },
 
   sr: {
@@ -165,6 +169,10 @@ export const STRINGS = {
     sup_send: "Отправить", sup_success: "Спасибо! Сообщение получено — мы скоро ответим.",
     sup_channels_title: "Прямая связь", sup_channels_desc: "Обычно отвечаем в течение нескольких часов.", sup_response: "Ответ в среднем < 4 ч",
     required_word: "обязательно",
+    subtotal: "Сумма", free: "Бесплатно", discount: "Скидка",
+    promo_code: "Промокод", promo_ph: "Промокод", apply: "Применить",
+    promo_applied: "Промокод применён: −{n}%", promo_invalid: "Неверный промокод", promo_removed: "Промокод удалён",
+    free_ship_hint: "Бесплатная доставка от {n}",
   },
 
   de: {

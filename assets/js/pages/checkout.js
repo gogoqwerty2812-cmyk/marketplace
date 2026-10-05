@@ -8,7 +8,11 @@ import { sendOrderNotification } from "../notify.js";
 initTheme();
 
 const items = Cart.items();
-const total = Cart.subtotal();
+const subtotal = Cart.subtotal();
+const promo = Cart.getPromo();
+const discount = Cart.discount();
+const shippingFee = Cart.shipping();
+const total = Cart.total();
 let selectedCoin = null;
 
 function summaryHTML() {
@@ -26,6 +30,9 @@ function summaryHTML() {
             <strong style="font-size:.9rem">${money(i.qty * i.price)}</strong>
           </div>`).join("")}
       </div>
+      <div class="summary__row" style="margin-top:12px"><span>${t("subtotal")}</span><span>${money(subtotal)}</span></div>
+      ${promo ? `<div class="summary__row" style="color:var(--accent)"><span>${t("discount")} · ${esc(promo.code.toUpperCase())} (${promo.pct}%)</span><span>−${money(discount)}</span></div>` : ""}
+      <div class="summary__row"><span>${t("shipping")}</span><span>${shippingFee === 0 ? t("free") : money(shippingFee)}</span></div>
       <div class="summary__total"><span>${t("total_due")}</span><b>${money(total)}</b></div>
       <p class="hint">${t("pay_exact")}</p>
     </aside>`;
@@ -308,6 +315,11 @@ function init() {
     const stateName = isUS ? (US_STATES.find(([a]) => a === stateVal)?.[1] || stateVal) : "";
     const order = await createOrder({
       items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, image: i.image })),
+      subtotal,
+      discount,
+      shipping: shippingFee,
+      promoCode: promo ? promo.code.toUpperCase() : "",
+      promoPct: promo ? promo.pct : 0,
       total,
       currency: SITE.currency.code,
       customer: {

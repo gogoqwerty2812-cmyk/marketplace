@@ -1,8 +1,18 @@
 // =============================================================================
 //  store.js — cart persistence (localStorage) + pub/sub
 // =============================================================================
+import { PROMO_CODES, SHIPPING } from "./config.js?v=2";
+
 const KEY = "mkt_cart_v1";
+const PROMO_KEY = "mkt_promo_v1";
 const listeners = new Set();
+
+function normCode(code) {
+  return String(code || "").trim().toLowerCase().replace(/\s+/g, "");
+}
+function round2(n) {
+  return Math.round(n * 100) / 100;
+}
 
 function read() {
   try {
@@ -27,6 +37,48 @@ export const Cart = {
 
   subtotal() {
     return read().reduce((s, i) => s + i.price * i.qty, 0);
+  },
+
+  // ---- promo code (codes live in config.js, not the admin panel) -----------
+  getPromo() {
+    try {
+      const code = localStorage.getItem(PROMO_KEY);
+      if (!code) return null;
+      const pct = PROMO_CODES[code];
+      return pct ? { code, pct } : null;
+    } catch {
+      return null;
+    }
+  },
+  applyPromo(code) {
+    const c = normCode(code);
+    const pct = PROMO_CODES[c];
+    if (!pct) return null;
+    try { localStorage.setItem(PROMO_KEY, c); } catch {}
+    return { code: c, pct };
+  },
+  clearPromo() {
+    try { localStorage.removeItem(PROMO_KEY); } catch {}
+  },
+
+  // ---- money math ----------------------------------------------------------
+  discount() {
+    const p = this.getPromo();
+    if (!p) return 0;
+    return round2(this.subtotal() * p.pct / 100);
+  },
+  // Goods price after the promo discount — this is what the shipping threshold
+  // and the final total are based on.
+  goods() {
+    return round2(this.subtotal() - this.discount());
+  },
+  shipping() {
+    const goods = this.goods();
+    if (goods <= 0) return 0;
+    return goods >= SHIPPING.freeThreshold ? 0 : SHIPPING.fee;
+  },
+  total() {
+    return round2(this.goods() + this.shipping());
   },
 
   // item: { id, name, price, image, stock }
