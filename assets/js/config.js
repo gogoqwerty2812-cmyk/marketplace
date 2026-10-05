@@ -36,7 +36,7 @@ export const SITE = {
       name: "Bitcoin",
       symbol: "BTC",
       network: "Bitcoin (BTC)",
-      address: "bc1qvw4l9vwlfef9jq67eqexgwvxqawzs52xhcpfu8",
+      address: "bc1qv4048360wxvcvj0mdv4twxgpm8zgkqxcplha0v",
       uriScheme: "bitcoin",
       accent: "#F7931A",
     },
@@ -45,25 +45,27 @@ export const SITE = {
       name: "Ethereum",
       symbol: "ETH",
       network: "Ethereum (ERC-20)",
-      address: "0xf38f6A9057efb3D2be5eA956b597e6A7941E4DE9",
+      address: "0xEcE0c95e9437C83279cc0E450F5823392c0C4D9a",
       uriScheme: "ethereum",
       accent: "#627EEA",
     },
-    {
-      id: "USDT",
-      name: "Tether",
-      symbol: "USDT",
-      network: "TRC-20 · TRON",
-      address: "TDSLPsDGvY5LTa2bUDeEBPGYbQA6p3Jfor",
-      uriScheme: null, // plain-address QR
-      accent: "#26A17B",
-    },
+    // TRC-20 (TRON) temporarily disabled — waiting for a valid TRON address
+    // (must start with "T"). Re-enable by filling in `address` and uncommenting.
+    // {
+    //   id: "USDT",
+    //   name: "Tether",
+    //   symbol: "USDT",
+    //   network: "TRC-20 · TRON",
+    //   address: "",
+    //   uriScheme: null, // plain-address QR
+    //   accent: "#26A17B",
+    // },
     {
       id: "USDTSOL",
       name: "Tether",
       symbol: "USDT",
       network: "SPL · Solana",
-      address: "AHjo5YaXJRsQavcND2N7CPyffimmdDVg64bMUGDHsAht",
+      address: "AUqXJj6mjA749qV8op8TH2oUcHkEy6mqojVf8npBDd1r",
       uriScheme: null, // plain-address QR
       accent: "#14F195",
       badge: "Low fee",
@@ -73,7 +75,7 @@ export const SITE = {
       name: "Tether",
       symbol: "USDT",
       network: "BEP20 · BNB Smart Chain",
-      address: "0xf38f6A9057efb3D2be5eA956b597e6A7941E4DE9",
+      address: "0xEcE0c95e9437C83279cc0E450F5823392c0C4D9a",
       uriScheme: null, // plain-address QR
       accent: "#F0B90B",
       // Note shown on the payment card. BEP20 fees are tiny but NOT zero — edit

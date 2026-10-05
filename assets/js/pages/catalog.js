@@ -20,7 +20,7 @@ const COPY = {
     ben: [
       ["shield", "Lab-tested", "Only genuine brands, verified by third-party labs."],
       ["truck", "Fast shipping", "Discreet worldwide delivery with tracking."],
-      ["check", "Crypto checkout", "Pay in BTC, ETH or USDT — private, no account."],
+      ["check", "Anonymous delivery", "No account, no extra data — discreet packaging and private checkout."],
       ["headset", "Real support", "Questions? We reply within hours."],
     ],
     revTitle: "What athletes say",
@@ -47,7 +47,7 @@ const COPY = {
     ben: [
       ["shield", "Проверено", "Только оригинал, проверенный сторонними лабораториями."],
       ["truck", "Быстрая доставка", "Аккуратная доставка по миру с трек-номером."],
-      ["check", "Оплата криптой", "BTC, ETH или USDT — приватно, без аккаунта."],
+      ["check", "Анонимная доставка", "Без аккаунта и лишних данных — приватная упаковка и оплата."],
       ["headset", "Поддержка", "Есть вопрос? Отвечаем в течение часов."],
     ],
     revTitle: "Отзывы атлетов",
