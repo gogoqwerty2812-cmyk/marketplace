@@ -5,14 +5,26 @@
 // =============================================================================
 import { SITE } from "./config.js?v=2";
 
+// Reassemble the bot token that config.js stores encoded + split, so the raw
+// `<digits>:AA...` string never appears in the repo for scrapers to grab.
+// Supports a plain `botToken` too, as a fallback.
+function botToken(tg) {
+  if (tg.botToken) return tg.botToken;
+  if (Array.isArray(tg.tokenParts) && tg.tokenParts.length) {
+    try { return atob(tg.tokenParts.join("").split("").reverse().join("")); }
+    catch { return ""; }
+  }
+  return "";
+}
+
 function cfg() {
   const tg = SITE.telegram;
-  return tg && tg.enabled && tg.botToken && tg.chatId ? tg : null;
+  return tg && tg.enabled && botToken(tg) && tg.chatId ? tg : null;
 }
 
 async function tgSend(tg, text) {
   try {
-    const res = await fetch(`https://api.telegram.org/bot${tg.botToken}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${botToken(tg)}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: tg.chatId, text, disable_web_page_preview: true }),

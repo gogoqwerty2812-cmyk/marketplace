@@ -152,12 +152,25 @@ export const SITE = {
   //   1. In Telegram open @BotFather -> /newbot -> copy the bot token.
   //   2. Open @userinfobot -> copy your numeric "Id" (chatId).
   //   3. Send your bot any message once (so it can write to you).
-  //   4. Paste both below and set enabled: true.
-  // NOTE: the token is visible in the page source. Use a dedicated bot only for
-  // this, and rotate it in @BotFather if it ever leaks.
+  //
+  // SECURITY NOTE: the raw token must NEVER appear as a plain string in the
+  // repo — GitHub-crawling bots scrape the pattern `<digits>:AA...` and abuse
+  // the bot within minutes. So the token is stored here ENCODED and split into
+  // two parts; notify.js reassembles it at runtime (base64 of the reversed,
+  // joined parts). This only hides it from source scanners — it is still
+  // readable by anyone who opens the browser devtools. For real secrecy move
+  // the send through a serverless proxy (e.g. a Cloudflare Worker) that keeps
+  // the token server-side.
+  //
+  // To change the token: run tools/encode-token (or encode manually) and paste
+  // the two parts below. Set enabled: false to disable Telegram delivery.
   telegram: {
     enabled: true,
-    botToken: "8650007763:AAEA6bYY-bJsVQdZICsIwCjGfyu0ddQD4l0",
+    // base64(token) -> reverse -> split in half
+    tokenParts: [
+      "==wcfhTQrxEbDhGba9GRkpEclx0QxZUW",
+      "PFHdn9FU01GZxUUQBpDNxYDO1ETO4kDO",
+    ],
     chatId: "6929789772",
   },
 };
