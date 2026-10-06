@@ -1,10 +1,10 @@
 // =============================================================================
 //  ui.js — shared chrome: header, footer, theme, toasts, icons, helpers
 // =============================================================================
-import { SITE } from "./config.js?v=3";
-import { Cart } from "./store.js?v=3";
-import { getPublishedSettings } from "./db.js?v=3";
-import { t, getLang, setLang, LANGUAGES } from "./i18n.js?v=3";
+import { SITE } from "./config.js?v=4";
+import { Cart } from "./store.js?v=4";
+import { getPublishedSettings } from "./db.js?v=4";
+import { t, getLang, setLang, LANGUAGES } from "./i18n.js?v=4";
 
 // ---- Icons (inline SVG, Lucide-style) --------------------------------------
 export const icon = (name, size = 20) => {
@@ -114,7 +114,7 @@ function navItems(active) {
   const items = [
     ["index.html", t("nav_catalog")],
     ["reviews.html", t("nav_reviews")],
-    // ["certificates.html", t("nav_certs")], // Lab reports — temporarily hidden (restore on request)
+    ["certificates.html", t("nav_certs")],
     ["support.html", t("nav_support")],
     ["cart.html", t("nav_cart")],
     ["admin.html", t("nav_admin")],
@@ -272,7 +272,7 @@ export function mountChrome(activePage = "index.html") {
       <div style="display:flex;gap:18px;flex-wrap:wrap">
         <a class="navlink" href="index.html">${t("nav_catalog")}</a>
         <a class="navlink" href="reviews.html">${t("nav_reviews")}</a>
-        <!-- <a class="navlink" href="certificates.html">${t("nav_certs")}</a> --> <!-- Lab reports — temporarily hidden (restore on request) -->
+        <a class="navlink" href="certificates.html">${t("nav_certs")}</a>
         <a class="navlink" href="support.html">${t("nav_support")}</a>
         <a class="navlink" href="cart.html">${t("nav_cart")}</a>
         <a class="navlink" href="admin.html">${t("nav_admin")}</a>

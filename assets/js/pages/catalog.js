@@ -1,8 +1,8 @@
-import { SITE } from "../config.js?v=3";
-import { getPublishedProducts, getPublishedSettings, getPublishedReviews } from "../db.js?v=3";
-import { Cart } from "../store.js?v=3";
-import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor, sampleCornerColor, cutoutImage } from "../ui.js?v=3";
-import { t, getLang } from "../i18n.js?v=3";
+import { SITE } from "../config.js?v=4";
+import { getPublishedProducts, getPublishedSettings, getPublishedReviews } from "../db.js?v=4";
+import { Cart } from "../store.js?v=4";
+import { icon, money, esc, placeholder, initTheme, mountChrome, revealOnScroll, toast, skeletonCards, flyToCart, catColor, sampleCornerColor, cutoutImage } from "../ui.js?v=4";
+import { t, getLang } from "../i18n.js?v=4";
 
 initTheme();
 
@@ -426,8 +426,7 @@ async function init() {
           <div class="promo__stats">${l.promoStats.map(([n, s]) => `<div class="promo__stat"><b>${n}</b><span>${s}</span></div>`).join("")}</div>
           <div class="promo__actions">
             <a class="btn btn--light btn--lg" href="#catalog">${icon("bag", 18)} ${l.promoCta1}</a>
-            <!-- Lab reports CTA temporarily hidden (restore with the certificates tab) -->
-            <!-- <a class="btn btn--outline-light btn--lg" href="certificates.html">${icon("shield", 18)} ${l.promoCta2}</a> -->
+            <a class="btn btn--outline-light btn--lg" href="certificates.html">${icon("shield", 18)} ${l.promoCta2}</a>
           </div>
         </div>
       </div>
